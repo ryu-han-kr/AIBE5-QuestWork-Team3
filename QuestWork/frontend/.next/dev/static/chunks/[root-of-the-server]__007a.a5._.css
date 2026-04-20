@@ -157,7 +157,6 @@
     --color-green-700: #008138;
     --color-green-800: #016630;
     --color-emerald-50: #ecfdf5;
-    --color-emerald-100: #d0fae5;
     --color-emerald-200: #a4f4cf;
     --color-emerald-600: #009767;
     --color-emerald-700: #007956;
@@ -166,12 +165,10 @@
     --color-blue-200: #bedbff;
     --color-blue-700: #1447e6;
     --color-rose-50: #fff1f2;
-    --color-rose-100: #ffe4e6;
     --color-rose-200: #ffccd3;
     --color-rose-600: #e70044;
     --color-rose-700: #c20039;
     --color-slate-50: #f8fafc;
-    --color-slate-100: #f1f5f9;
     --color-slate-200: #e2e8f0;
     --color-slate-600: #45556c;
     --color-slate-700: #314158;
@@ -254,7 +251,6 @@
       --color-green-700: lab(47.0329% -47.0239 31.4788);
       --color-green-800: lab(37.4616% -36.7971 22.9692);
       --color-emerald-50: lab(97.8462% -6.94963 1.85487);
-      --color-emerald-100: lab(94.9004% -17.0769 5.63836);
       --color-emerald-200: lab(90.2247% -31.039 9.47084);
       --color-emerald-600: lab(55.0481% -49.9246 15.93);
       --color-emerald-700: lab(44.4871% -41.0396 11.0361);
@@ -263,12 +259,10 @@
       --color-blue-200: lab(86.15% -4.04379 -21.0797);
       --color-blue-700: lab(36.9089% 35.0961 -85.6872);
       --color-rose-50: lab(96.2369% 4.94152 1.28012);
-      --color-rose-100: lab(92.8221% 9.86832 2.60077);
       --color-rose-200: lab(86.806% 19.1909 4.07754);
       --color-rose-600: lab(49.1882% 81.577 36.0311);
       --color-rose-700: lab(41.1651% 71.6251 30.3087);
       --color-slate-50: lab(98.1434% -.369549 -1.05968);
-      --color-slate-100: lab(96.286% -.852466 -2.46847);
       --color-slate-200: lab(91.7353% -.998765 -4.76968);
       --color-slate-600: lab(35.5623% -1.74978 -15.4316);
       --color-slate-700: lab(26.9569% -1.47018 -15.6993);
@@ -665,10 +659,6 @@
     top: calc(var(--spacing) * 4);
   }
 
-  .top-20 {
-    top: calc(var(--spacing) * 20);
-  }
-
   .top-24 {
     top: calc(var(--spacing) * 24);
   }
@@ -909,10 +899,6 @@
 
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
-  }
-
-  .mt-8 {
-    margin-top: calc(var(--spacing) * 8);
   }
 
   .mt-12 {
@@ -1342,10 +1328,6 @@
     width: calc(var(--spacing) * 72);
   }
 
-  .w-80 {
-    width: calc(var(--spacing) * 80);
-  }
-
   .w-\[70vw\] {
     width: 70vw;
   }
@@ -1622,10 +1604,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .grid-cols-\[0_1fr\] {
     grid-template-columns: 0 1fr;
   }
@@ -1724,10 +1702,6 @@
 
   .gap-8 {
     gap: calc(var(--spacing) * 8);
-  }
-
-  .gap-12 {
-    gap: calc(var(--spacing) * 12);
   }
 
   :where(.space-y-0\.5 > :not(:last-child)) {
@@ -2406,10 +2380,6 @@
     padding-block: calc(var(--spacing) * 2);
   }
 
-  .py-2\.5 {
-    padding-block: calc(var(--spacing) * 2.5);
-  }
-
   .py-3 {
     padding-block: calc(var(--spacing) * 3);
   }
@@ -2560,11 +2530,6 @@
   .text-4xl {
     font-size: var(--text-4xl);
     line-height: var(--tw-leading, var(--text-4xl--line-height));
-  }
-
-  .text-5xl {
-    font-size: var(--text-5xl);
-    line-height: var(--tw-leading, var(--text-5xl--line-height));
   }
 
   .text-6xl {
@@ -3508,12 +3473,6 @@
   }
 
   @media (hover: hover) {
-    .hover\:bg-amber-100:hover {
-      background-color: var(--color-amber-100);
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:bg-destructive\/90:hover {
       background-color: var(--destructive);
     }
@@ -3526,26 +3485,8 @@
   }
 
   @media (hover: hover) {
-    .hover\:bg-emerald-100:hover {
-      background-color: var(--color-emerald-100);
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:bg-primary-hover:hover {
       background-color: var(--primary-hover);
-    }
-  }
-
-  @media (hover: hover) {
-    .hover\:bg-primary\/20:hover {
-      background-color: var(--primary);
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:bg-primary\/20:hover {
-        background-color: color-mix(in oklab, var(--primary) 20%, transparent);
-      }
     }
   }
 
@@ -3558,12 +3499,6 @@
       .hover\:bg-primary\/90:hover {
         background-color: color-mix(in oklab, var(--primary) 90%, transparent);
       }
-    }
-  }
-
-  @media (hover: hover) {
-    .hover\:bg-rose-100:hover {
-      background-color: var(--color-rose-100);
     }
   }
 
@@ -3582,12 +3517,6 @@
       .hover\:bg-secondary\/80:hover {
         background-color: color-mix(in oklab, var(--secondary) 80%, transparent);
       }
-    }
-  }
-
-  @media (hover: hover) {
-    .hover\:bg-slate-100:hover {
-      background-color: var(--color-slate-100);
     }
   }
 
@@ -3677,13 +3606,6 @@
   }
 
   @media (hover: hover) {
-    .hover\:shadow-\[0_0_0_2px_var\(--primary-light\)\]:hover {
-      --tw-shadow: 0 0 0 2px var(--tw-shadow-color, var(--primary-light));
-      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:shadow-lg:hover {
       --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -3740,10 +3662,6 @@
 
   .focus\:border-primary:focus {
     border-color: var(--primary);
-  }
-
-  .focus\:text-destructive:focus {
-    color: var(--destructive);
   }
 
   .focus\:opacity-100:focus {
@@ -4949,13 +4867,6 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:text-6xl {
-      font-size: var(--text-6xl);
-      line-height: var(--tw-leading, var(--text-6xl--line-height));
-    }
-  }
-
-  @media (min-width: 40rem) {
     .sm\:text-base {
       font-size: var(--text-base);
       line-height: var(--tw-leading, var(--text-base--line-height));
@@ -5145,18 +5056,6 @@
     .md\:after\:hidden:after {
       content: var(--tw-content);
       display: none;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .lg\:col-span-1 {
-      grid-column: span 1 / span 1;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .lg\:col-span-2 {
-      grid-column: span 2 / span 2;
     }
   }
 

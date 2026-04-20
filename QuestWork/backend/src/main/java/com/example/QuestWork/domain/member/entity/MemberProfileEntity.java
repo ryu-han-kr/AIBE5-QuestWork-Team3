@@ -4,15 +4,17 @@ import com.example.QuestWork.domain.member.constant.MemberLevel;
 
 import com.example.QuestWork.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.*;
 
 @Entity
 @Table(name = "member_profiles")
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor // Builder 사용을 위해 필요
+@Builder // 서비스 단에서 .builder()를 쓰기 위해 필수!
 public class MemberProfileEntity {
 
     @Id
@@ -31,7 +33,8 @@ public class MemberProfileEntity {
     @Enumerated(EnumType.STRING)
     private MemberLevel level; // 리액트의 experienceLevel (BRONZE, SILVER 등)
 
-    private int badgeCount;
+    @Builder.Default
+    private int badgeCount = 0;
 
     @Column(precision = 12, scale = 2)
     private BigDecimal totalReward; // 리액트의 totalEarnings (정밀한 계산을 위해 BigDecimal)

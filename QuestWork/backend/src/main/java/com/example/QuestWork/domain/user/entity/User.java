@@ -1,11 +1,13 @@
 package com.example.QuestWork.domain.user.entity;
 
+import com.example.QuestWork.domain.role.constant.RoleStatus;
 import com.example.QuestWork.domain.user.constant.AuthProvider;
 import com.example.QuestWork.domain.user.constant.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 
 import java.time.LocalDateTime;
 
@@ -54,6 +56,7 @@ public class User {
     @UpdateTimestamp
     @Column(name= "updated_at", nullable = false, updatable = true)
     private LocalDateTime updatedAt;
+
 
 
 
