@@ -1,8 +1,4 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
   "/login/page": "app/login/page.js",
-  "/manager/create-quest/page": "app/manager/create-quest/page.js",
-  "/page": "app/page.js",
-  "/profile/[username]/page": "app/profile/[username]/page.js",
-  "/quests/web-development/page": "app/quests/web-development/page.js"
+  "/page": "app/page.js"
 }
