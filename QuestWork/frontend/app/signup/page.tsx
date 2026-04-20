@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export default function SignupPage() {
     nickname: '',
     email: '',
     password: '',
+    role: '',
   })
 
   // const [emailCodeSent, setEmailCodeSent] = useState(false)
@@ -29,8 +31,17 @@ export default function SignupPage() {
     // }
   }
 
+  const handleRoleChange = (value: string) => {
+    setFormData(prev => ({ ...prev, role: value }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!formData.role) {
+      alert('역할을 선택해주세요.')
+      return
+    }
 
     try {
       //8000 포트의 벡엔드 호출
@@ -88,6 +99,20 @@ export default function SignupPage() {
               placeholder="이름을 입력하세요"
               className="h-12 bg-surface"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>역할 선택</Label>
+            <RadioGroup value={formData.role} onValueChange={handleRoleChange}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="individual" id="individual" />
+                <Label htmlFor="individual">개인</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="manager" id="manager" />
+                <Label htmlFor="manager">매니저</Label>
+              </div>
+            </RadioGroup>
           </div>
 
           <div className="space-y-2">

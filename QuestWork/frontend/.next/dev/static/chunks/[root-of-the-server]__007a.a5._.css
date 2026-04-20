@@ -148,7 +148,6 @@
     --color-red-600: #e40014;
     --color-red-700: #bf000f;
     --color-amber-50: #fffbeb;
-    --color-amber-100: #fef3c6;
     --color-amber-200: #fee685;
     --color-amber-600: #dd7400;
     --color-amber-700: #b75000;
@@ -173,8 +172,6 @@
     --color-slate-200: #e2e8f0;
     --color-slate-600: #45556c;
     --color-slate-700: #314158;
-    --color-gray-100: #f3f4f6;
-    --color-gray-500: #6a7282;
     --color-gray-700: #364153;
     --color-black: #000;
     --color-white: #fff;
@@ -244,7 +241,6 @@
       --color-red-600: lab(48.4493% 77.4328 61.5452);
       --color-red-700: lab(40.4273% 67.2623 53.7441);
       --color-amber-50: lab(98.6252% -.635982 8.42309);
-      --color-amber-100: lab(95.916% -1.2165 23.111);
       --color-amber-200: lab(91.7203% -.505269 49.9084);
       --color-amber-600: lab(60.3514% 40.5624 87.1228);
       --color-amber-700: lab(47.2709% 42.9082 69.2966);
@@ -269,8 +265,6 @@
       --color-slate-200: lab(91.7353% -.998765 -4.76968);
       --color-slate-600: lab(35.5623% -1.74978 -15.4316);
       --color-slate-700: lab(26.9569% -1.47018 -15.6993);
-      --color-gray-100: lab(96.1596% -.082314 -1.13575);
-      --color-gray-500: lab(47.7841% -.393212 -10.0268);
       --color-gray-700: lab(27.1134% -.956401 -12.3224);
     }
   }
@@ -1800,6 +1794,12 @@
     margin-block-end: calc(calc(var(--spacing) * 12) * calc(1 - var(--tw-space-y-reverse)));
   }
 
+  :where(.space-x-2 > :not(:last-child)) {
+    --tw-space-x-reverse: 0;
+    margin-inline-start: calc(calc(var(--spacing) * 2) * var(--tw-space-x-reverse));
+    margin-inline-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-x-reverse)));
+  }
+
   :where(.space-x-4 > :not(:last-child)) {
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 4) * var(--tw-space-x-reverse));
@@ -2089,10 +2089,6 @@
     background-color: var(--color-amber-50);
   }
 
-  .bg-amber-100 {
-    background-color: var(--color-amber-100);
-  }
-
   .bg-background {
     background-color: var(--background);
   }
@@ -2139,10 +2135,6 @@
 
   .bg-foreground {
     background-color: var(--foreground);
-  }
-
-  .bg-gray-100 {
-    background-color: var(--color-gray-100);
   }
 
   .bg-green-50 {
@@ -2796,10 +2788,6 @@
     .text-foreground\/50 {
       color: color-mix(in oklab, var(--foreground) 50%, transparent);
     }
-  }
-
-  .text-gray-500 {
-    color: var(--color-gray-500);
   }
 
   .text-gray-700 {

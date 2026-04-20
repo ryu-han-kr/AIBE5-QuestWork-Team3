@@ -24,3 +24,8 @@ PATCH http://localhost:8000/api/admin/users/4/status
 Content-Type: application/json
 
 "ACTIVE"
+
+### 전체 회원 조회 테스트
+GET http://localhost:8000/api/admin/users?page=0&size=10
+Accept: application/json
+

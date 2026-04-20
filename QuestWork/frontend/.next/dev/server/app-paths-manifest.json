@@ -1,7 +1,11 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/admin/page": "app/admin/page.js",
+  "/dashboard/my-submissions/page": "app/dashboard/my-submissions/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
   "/profile/[username]/page": "app/profile/[username]/page.js",
-  "/quests/[id]/page": "app/quests/[id]/page.js"
+  "/quests/[id]/page": "app/quests/[id]/page.js",
+  "/quests/web-development/page": "app/quests/web-development/page.js"
 }

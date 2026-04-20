@@ -40,7 +40,7 @@ import type { Member, Role, Status } from "@/app/admin/page"
 
 interface MemberTableProps {
   members: Member[]
-  onRoleChange: (memberId: string, newRole: string) => void
+  onRoleChange: (memberId: string, newRole: Role) => void
   onStatusChange: (memberId: string, newStatus: Status) => void
   onDelete: (memberId: string) => void
 }
@@ -69,11 +69,9 @@ export function MemberTable({
 
   // UI 스타일 헬퍼 함수들
   const getRoleBadgeStyle = (role: Role) => {
-    switch (role.toUpperCase()) {
-      case "ADMIN": return "bg-primary/10 text-primary border-primary/20"
-      case "MANAGER": return "bg-amber-50 text-amber-700 border-amber-200" // 매니저는 주황색
-      case "MEMBER":
-      case "USER": return "bg-slate-50 text-slate-700 border-slate-200" // 회원은 회색
+    switch (role.toLowerCase()) {
+      case "admin": return "bg-primary/10 text-primary border-primary/20"
+      case "member": return "bg-amber-50 text-amber-700 border-amber-200"
       default: return "bg-slate-50 text-slate-700 border-slate-200"
     }
   }
@@ -88,11 +86,9 @@ export function MemberTable({
   }
 
   const getRoleLabel = (role: Role) => {
-    switch (role.toUpperCase()) { // 대소문자 구분 없이 비교하기 위해 upper 사용
-      case "ADMIN": return "관리자"
-      case "MANAGER": return "매니저" // 💡 MANAGER가 매니저입니다.
-      case "MEMBER":
-      case "USER": return "일반 회원" // 💡 MEMBER와 USER가 일반 회원입니다.
+    switch (role.toLowerCase()) {
+      case "admin": return "관리자"
+      case "member": return "매니저"
       default: return "회원"
     }
   }
@@ -167,7 +163,7 @@ export function MemberTable({
                             <DropdownMenuPortal>
                               <DropdownMenuSubContent>
                                 <DropdownMenuItem onClick={() => onRoleChange(member.id, "admin")}>관리자</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onRoleChange(member.id, "manager")}>매니저</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => onRoleChange(member.id, "member")}>매니저</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => onRoleChange(member.id, "user")}>일반 회원</DropdownMenuItem>
                               </DropdownMenuSubContent>
                             </DropdownMenuPortal>
