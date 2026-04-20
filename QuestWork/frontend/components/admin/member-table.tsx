@@ -40,7 +40,7 @@ import type { Member, Role, Status } from "@/app/admin/page"
 
 interface MemberTableProps {
   members: Member[]
-  onRoleChange: (memberId: string, newRole: Role) => void
+  onRoleChange: (memberId: string, newRole: string) => void
   onStatusChange: (memberId: string, newStatus: Status) => void
   onDelete: (memberId: string) => void
 }
