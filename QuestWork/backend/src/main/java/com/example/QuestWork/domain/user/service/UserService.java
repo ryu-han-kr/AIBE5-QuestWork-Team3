@@ -34,6 +34,7 @@ public class UserService {
             throw new RuntimeException("비밀번호가 틀렸습니다"); }
         return user.getNickname();
     }
+
     @Transactional
     public void signUp(UserRequestDto dto) {
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
