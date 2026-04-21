@@ -1,16 +1,6 @@
-'use client'
 
-import { useMemo, useState } from 'react'
-import { GlobalNav } from '@/components/global-nav'
-import {
-  QuestFilters,
-  type QuestFilters as QuestFiltersType,
-} from '@/components/quest-filters'
-import { QuestCard, type Quest } from '@/components/quest-card'
-import { QuestSearch } from '@/components/quest-search'
-import { Button } from '@/components/ui/button'
-import { Pagination } from '@/components/ui/pagination'
 
+<<<<<<< Updated upstream:QuestWork/frontend/app/quests/web-development/page.tsx
 // Mock quest data
 const MOCK_QUESTS: Quest[] = [
   {
@@ -298,3 +288,5 @@ export default function WebDevelopmentQuestsPage() {
     </div>
   )
 }
+=======
+>>>>>>> Stashed changes:QuestWork/frontend/app/quests/page.tsx

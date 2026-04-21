@@ -11,5 +11,5 @@ public enum QuestStatus {
     IN_PROCESS("진행 중"), FINISHED("종료"),
     PICKED("참여 신청 완료"), CANCELED("취소됨");
 
-    private final String decription;
+    private final String description;
 }

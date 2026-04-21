@@ -1,9 +1,13 @@
 package com.example.QuestWork.domain.user.service;
 
-import com.example.QuestWork.domain.user.constant.AuthProvider;
-import com.example.QuestWork.domain.user.constant.UserStatus;
+import com.example.QuestWork.domain.manager.entity.ManagerProfileEntity;
+import com.example.QuestWork.domain.manager.repositroy.ManagerProfileRepository;
+import com.example.QuestWork.domain.member.constant.MemberLevel;
+import com.example.QuestWork.domain.member.entity.MemberProfileEntity;
+import com.example.QuestWork.domain.member.repository.MemberProfileRepository;
 import com.example.QuestWork.domain.user.dto.UserLoginRequestDto;
-import com.example.QuestWork.domain.user.dto.UserSignupRequesetDto;
+import com.example.QuestWork.domain.user.dto.UserRequestDto;
+import com.example.QuestWork.domain.user.dto.UserResponseDto;
 import com.example.QuestWork.domain.user.entity.User;
 import com.example.QuestWork.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 
 @Service
@@ -19,33 +23,40 @@ import java.time.LocalDateTime;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    // 💡 아래 레포지토리들이 반드시 추가되어야 합니다.
+    private final MemberProfileRepository memberProfileRepository;
+    private final ManagerProfileRepository managerProfileRepository;
 
     @Transactional(readOnly=true)
-    public String login(UserLoginRequestDto dto) {
+    public UserResponseDto login(UserLoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다"));
         if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new RuntimeException("비밀번호가 틀렸습니다"); }
-        return user.getNickname();
+        return UserResponseDto.from(user);
     }
-
     @Transactional
-    public Long signup(UserSignupRequesetDto dto) {
-        if(userRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일 입니다");
-        }
+    public void signUp(UserRequestDto dto) {
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        User user = userRepository.save(dto.toUserEntity(encodedPassword));
 
-        //Dto -> Entity 변환
-       User user = User.builder()
-                .username(dto.getUsername())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .email(dto.getEmail())
-                .nickname(dto.getNickname())
-                .provider(AuthProvider.LOCAL) // 일반가입
-                .status(UserStatus.ACTIVE)
-//                .createdAt(LocalDateTime.now())
-//                .updatedAt(LocalDateTime.now())
+        String roleType = dto.getRoleType();
+        System.out.println("전달된 roleType: [" + roleType + "]");
+
+        // 1. [공통] 어떤 역할이든 '기본 멤버 프로필'은 생성합니다.
+        // (매니저도 활동을 하려면 기본 프로필 정보가 필요하니까요!)
+        MemberProfileEntity memberProfile = MemberProfileEntity.builder()
+                .user(user)
+                .level(MemberLevel.BRONZE)
+                .badgeCount(0)
+                .totalReward(BigDecimal.ZERO)
                 .build();
+        memberProfileRepository.save(memberProfile);
+
+        // 2. 역할에 따른 권한 부여 및 추가 프로필 생성
+        if (roleType != null && roleType.trim().equalsIgnoreCase("MANAGER")) {
+            // 매니저 권한 부여
+            userRepository.insertUserRoleNative(user.getId(), "MANAGER");
 
             // 매니저 추가 프로필 생성
             ManagerProfileEntity managerProfile = ManagerProfileEntity.builder()
@@ -66,7 +77,5 @@ public class UserService {
             userRepository.insertUserRoleNative(user.getId(), "MEMBER");
             System.out.println("일반 멤버 프로필 생성 완료");
         }
-
     }
-
-
+    }
