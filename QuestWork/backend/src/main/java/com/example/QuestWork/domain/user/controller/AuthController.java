@@ -2,6 +2,8 @@ package com.example.QuestWork.domain.user.controller;
 
 import com.example.QuestWork.domain.user.dto.UserLoginRequestDto;
 import com.example.QuestWork.domain.user.dto.UserRequestDto;
+import com.example.QuestWork.domain.user.dto.UserResponseDto;
+import com.example.QuestWork.domain.user.dto.UserSignupRequesetDto;
 import com.example.QuestWork.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,7 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody UserLoginRequestDto dto) {
+    public ResponseEntity<UserResponseDto> login(@RequestBody UserLoginRequestDto dto) {
         return ResponseEntity.ok(userService.login(dto));
     }
 
