@@ -30,8 +30,9 @@ export function LoginForm() {
         console.log("로그인 응답 데이터:", data)
 
         // 1. 유저 기본 정보 저장
-        localStorage.setItem('userId', data.id.toString())
-        localStorage.setItem('nickname', data.nickname)
+        localStorage.setItem("nickname", res.data.nickname);
+        localStorage.setItem("username", res.data.username); // 💡 이 줄을 추가!
+        localStorage.setItem("role", res.data.role);
 
         // 2. 권한(Role) 판별 및 교정 로직
         // DB 기준: 7=ADMIN, 8=MEMBER, 9=MANAGER

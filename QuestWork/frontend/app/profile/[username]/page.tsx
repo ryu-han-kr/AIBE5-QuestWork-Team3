@@ -85,7 +85,7 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
         const data: FreelancerProfile = await response.json();
         setProfile(data);
         setDraft({
-          nickname: data.nickname || '',
+          nickname: data.nickname || '', // username을 nickname으로 변경!
           profileImageUrl: data.profileImageUrl || '',
           intro: data.intro || '',
           portfolioUrl: data.portfolioUrl || '',

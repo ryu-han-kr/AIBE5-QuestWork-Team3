@@ -45,271 +45,277 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const myPageCloseRef = useRef<NodeJS.Timeout | null>(null);
   const userMenuCloseRef = useRef<NodeJS.Timeout | null>(null);
 
-  const makeEnter =
-    (
-      setter: (v: boolean) => void,
-      timerRef: MutableRefObject<NodeJS.Timeout | null>,
-    ) =>
-    () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-      setter(true);
-    };
-
-  const makeLeave =
-    (
-      setter: (v: boolean) => void,
-      timerRef: MutableRefObject<NodeJS.Timeout | null>,
-    ) =>
-    () => {
-      timerRef.current = setTimeout(() => setter(false), 150);
-    };
-
+  const [username, setUsername] = useState<string | null>(null); // 💡 추가
   const [nickname, setNickname] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [role, setRole] = useState<'USER' | 'MANAGER'>('USER');
 
+  const makeEnter =
+      (
+          setter: (v: boolean) => void,
+          timerRef: MutableRefObject<NodeJS.Timeout | null>,
+      ) =>
+          () => {
+            if (timerRef.current) {
+              clearTimeout(timerRef.current);
+              timerRef.current = null;
+            }
+            setter(true);
+          };
+
+  const makeLeave =
+      (
+          setter: (v: boolean) => void,
+          timerRef: MutableRefObject<NodeJS.Timeout | null>,
+      ) =>
+          () => {
+            timerRef.current = setTimeout(() => setter(false), 150);
+          };
+
   useEffect(() => {
+    setUsername(localStorage.getItem("username")); // 💡 추가
     setNickname(localStorage.getItem("nickname"));
     setProfileImage(
-      localStorage.getItem("profileImage") || localStorage.getItem("avatar"),
+        localStorage.getItem("profileImage") || localStorage.getItem("avatar"),
     );
     const storedRole = localStorage.getItem("role") as 'USER' | 'MANAGER' | null;
     setRole(storedRole || 'USER');
   }, []);
 
   const userProfileImage =
-    profileImage ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-      nickname || "questwork-user",
-    )}`;
-  const profileHref = `/profile/${encodeURIComponent(nickname || "")}`;
+      profileImage ||
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+          nickname || "questwork-user",
+      )}`;
+
+  // 💡 주소창에 들어가는 값은 nickname이 아닌 username(아이디)으로 설정!
+  const profileHref = `/profile/${encodeURIComponent(username || "")}`;
   const avatarFallback = nickname?.trim().slice(0, 1).toUpperCase() || "Q";
 
   const handleLogout = () => {
+    localStorage.removeItem("username"); // 💡 추가
     localStorage.removeItem("nickname");
     localStorage.removeItem("profileImage");
     localStorage.removeItem("avatar");
+    setUsername(null);
     setNickname(null);
     setProfileImage(null);
     setIsUserMenuOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background">
-      <nav className="mx-auto flex max-w-content items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-primary font-bold text-primary-foreground">
-            Q
-          </div>
-          <span className="hidden font-bold text-foreground sm:inline">
+      <header className="sticky top-0 z-40 border-b border-border bg-background">
+        <nav className="mx-auto flex max-w-content items-center justify-between px-4 py-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary font-bold text-primary-foreground">
+              Q
+            </div>
+            <span className="hidden font-bold text-foreground sm:inline">
             QuestWork
           </span>
-        </Link>
-
-        <div className="flex items-center gap-6">
-          <div
-            className="relative"
-            onMouseEnter={makeEnter(setIsQuestsOpen, questsCloseRef)}
-            onMouseLeave={makeLeave(setIsQuestsOpen, questsCloseRef)}
-          >
-            <button
-              onClick={() => setIsQuestsOpen((open) => !open)}
-              className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-            >
-              Quests
-            </button>
-
-            {isQuestsOpen && (
-              <div className="absolute left-0 top-full w-90 rounded-lg border border-border bg-background shadow-lg">
-                <div className="p-4">
-                  {QUEST_CATEGORIES.map((category) => (
-                    <Link
-                      key={category.route}
-                      href={category.route}
-                      onClick={() => setIsQuestsOpen(false)}
-                      className="group block rounded-lg p-3 transition-colors hover:bg-surface"
-                    >
-                      <div className="text-sm font-semibold text-foreground group-hover:text-primary">
-                        {category.title}
-                      </div>
-                      <div className="mt-1 max-h-0 overflow-hidden text-xs text-foreground-muted opacity-0 transition-all duration-200 group-hover:max-h-20 group-hover:opacity-100">
-                        {category.description}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-          >
-            Dashboard
           </Link>
 
-          <Link
-            href="/blog"
-            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-          >
-            Blog
-          </Link>
-
-          {isLoggedIn && role === 'MANAGER' ? (
-            <Link
-              href="/manager"
-              className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-            >
-              Manager Dashboard
-            </Link>
-          ) : isLoggedIn ? (
+          <div className="flex items-center gap-6">
             <div
-              className="relative"
-              onMouseEnter={makeEnter(setIsMyPageOpen, myPageCloseRef)}
-              onMouseLeave={makeLeave(setIsMyPageOpen, myPageCloseRef)}
+                className="relative"
+                onMouseEnter={makeEnter(setIsQuestsOpen, questsCloseRef)}
+                onMouseLeave={makeLeave(setIsQuestsOpen, questsCloseRef)}
             >
               <button
-                onClick={() => setIsMyPageOpen((open) => !open)}
-                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  onClick={() => setIsQuestsOpen((open) => !open)}
+                  className="text-sm font-medium text-foreground transition-colors hover:text-primary"
               >
-                My Page
+                Quests
               </button>
 
-              {isMyPageOpen && (
-                <div className="absolute left-0 top-full w-48 rounded-lg border border-border bg-background shadow-lg">
-                  <div className="py-1">
-                    {MY_PAGE_LINKS.map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        onClick={() => setIsMyPageOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-surface hover:text-primary"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
+              {isQuestsOpen && (
+                  <div className="absolute left-0 top-full w-90 rounded-lg border border-border bg-background shadow-lg">
+                    <div className="p-4">
+                      {QUEST_CATEGORIES.map((category) => (
+                          <Link
+                              key={category.route}
+                              href={category.route}
+                              onClick={() => setIsQuestsOpen(false)}
+                              className="group block rounded-lg p-3 transition-colors hover:bg-surface"
+                          >
+                            <div className="text-sm font-semibold text-foreground group-hover:text-primary">
+                              {category.title}
+                            </div>
+                            <div className="mt-1 max-h-0 overflow-hidden text-xs text-foreground-muted opacity-0 transition-all duration-200 group-hover:max-h-20 group-hover:opacity-100">
+                              {category.description}
+                            </div>
+                          </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
               )}
             </div>
-          ) : null}
-        </div>
 
-        <div className="flex items-center gap-2">
-          {nickname ? (
-            <div
-              className="relative"
-              onMouseEnter={makeEnter(setIsUserMenuOpen, userMenuCloseRef)}
-              onMouseLeave={makeLeave(setIsUserMenuOpen, userMenuCloseRef)}
+            <Link
+                href="/dashboard"
+                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
             >
-              <button
-                type="button"
-                onClick={() => setIsUserMenuOpen((open) => !open)}
-                className={`flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5 shadow-sm transition-all duration-200 ${
-                  role === 'MANAGER'
-                    ? 'border-blue-500 hover:border-blue-600 hover:bg-blue-50 hover:shadow-[0_0_0_2px_var(--blue-200)]'
-                    : 'border-border hover:border-primary hover:bg-primary-light hover:shadow-[0_0_0_2px_var(--primary-light)]'
-                }`}
-                aria-expanded={isUserMenuOpen}
-                aria-haspopup="menu"
-              >
-                <Avatar className={`size-8 bg-primary-light ${role === 'MANAGER' ? 'border-2 border-blue-500' : 'border border-primary/20'}`}>
-                  <AvatarImage src={userProfileImage} alt={nickname} />
-                  <AvatarFallback className="bg-primary-light text-xs font-semibold text-primary">
-                    {avatarFallback}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden max-w-24 truncate sm:inline">
-                  <span className="text-sm font-medium text-foreground">
-                    {nickname}님
-                  </span>
-                  {role === 'MANAGER' && (
-                    <div className="mt-0.5 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
-                      Manager
-                    </div>
+              Dashboard
+            </Link>
+
+            <Link
+                href="/blog"
+                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+            >
+              Blog
+            </Link>
+
+            {isLoggedIn && role === 'MANAGER' ? (
+                <Link
+                    href="/manager"
+                    className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                >
+                  Manager Dashboard
+                </Link>
+            ) : isLoggedIn ? (
+                <div
+                    className="relative"
+                    onMouseEnter={makeEnter(setIsMyPageOpen, myPageCloseRef)}
+                    onMouseLeave={makeLeave(setIsMyPageOpen, myPageCloseRef)}
+                >
+                  <button
+                      onClick={() => setIsMyPageOpen((open) => !open)}
+                      className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  >
+                    My Page
+                  </button>
+
+                  {isMyPageOpen && (
+                      <div className="absolute left-0 top-full w-48 rounded-lg border border-border bg-background shadow-lg">
+                        <div className="py-1">
+                          {MY_PAGE_LINKS.map((item) => (
+                              <Link
+                                  key={item.label}
+                                  href={item.href}
+                                  onClick={() => setIsMyPageOpen(false)}
+                                  className="block px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-surface hover:text-primary"
+                              >
+                                {item.label}
+                              </Link>
+                          ))}
+                        </div>
+                      </div>
                   )}
                 </div>
-              </button>
+            ) : null}
+          </div>
 
-              {isUserMenuOpen && (
-                <div className="absolute right-0 top-full w-72 pt-3">
-                  <div
-                    className="rounded-lg border border-border bg-background p-4 text-center shadow-xl shadow-primary/10"
-                    role="menu"
+          <div className="flex items-center gap-2">
+            {nickname ? (
+                <div
+                    className="relative"
+                    onMouseEnter={makeEnter(setIsUserMenuOpen, userMenuCloseRef)}
+                    onMouseLeave={makeLeave(setIsUserMenuOpen, userMenuCloseRef)}
+                >
+                  <button
+                      type="button"
+                      onClick={() => setIsUserMenuOpen((open) => !open)}
+                      className={`flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5 shadow-sm transition-all duration-200 ${
+                          role === 'MANAGER'
+                              ? 'border-blue-500 hover:border-blue-600 hover:bg-blue-50 hover:shadow-[0_0_0_2px_var(--blue-200)]'
+                              : 'border-border hover:border-primary hover:bg-primary-light hover:shadow-[0_0_0_2px_var(--primary-light)]'
+                      }`}
+                      aria-expanded={isUserMenuOpen}
+                      aria-haspopup="menu"
                   >
-                    <Avatar className="mx-auto size-20 border-2 border-primary bg-primary-light shadow-md shadow-primary/10">
+                    <Avatar className={`size-8 bg-primary-light ${role === 'MANAGER' ? 'border-2 border-blue-500' : 'border border-primary/20'}`}>
                       <AvatarImage src={userProfileImage} alt={nickname} />
-                      <AvatarFallback className="bg-primary-light text-2xl font-bold text-primary">
+                      <AvatarFallback className="bg-primary-light text-xs font-semibold text-primary">
                         {avatarFallback}
                       </AvatarFallback>
                     </Avatar>
-
-                    <p className="mt-3 text-base font-semibold text-foreground">
-                      안녕하세요, {nickname}님
-                    </p>
-
-                    <div className="mt-4 space-y-2">
-                      <Button
-                        asChild
-                        className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
-                      >
-                        {role === 'MANAGER' ? (
-                          <Link
-                            href="/manager"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            매니저 대시보드
-                          </Link>
-                        ) : (
-                          <Link
-                            href={profileHref}
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            프로필 보기
-                          </Link>
-                        )}
-                      </Button>
+                    <div className="hidden max-w-24 truncate sm:inline">
+                  <span className="text-sm font-medium text-foreground">
+                    {nickname}님
+                  </span>
                       {role === 'MANAGER' && (
-                        <Button
-                          asChild
-                          variant="outline"
-                          className="w-full border-blue-200 text-blue-600 hover:border-blue-400 hover:bg-blue-50"
-                        >
-                          <Link
-                            href="/manager"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            프로필 설정
-                          </Link>
-                        </Button>
+                          <div className="mt-0.5 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
+                            Manager
+                          </div>
                       )}
-                      <Button
-                        variant="outline"
-                        className="w-full border-border hover:border-primary hover:text-primary"
-                        onClick={handleLogout}
-                      >
-                        로그아웃
-                      </Button>
                     </div>
-                  </div>
+                  </button>
+
+                  {isUserMenuOpen && (
+                      <div className="absolute right-0 top-full w-72 pt-3">
+                        <div
+                            className="rounded-lg border border-border bg-background p-4 text-center shadow-xl shadow-primary/10"
+                            role="menu"
+                        >
+                          <Avatar className="mx-auto size-20 border-2 border-primary bg-primary-light shadow-md shadow-primary/10">
+                            <AvatarImage src={userProfileImage} alt={nickname} />
+                            <AvatarFallback className="bg-primary-light text-2xl font-bold text-primary">
+                              {avatarFallback}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <p className="mt-3 text-base font-semibold text-foreground">
+                            안녕하세요, {nickname}님
+                          </p>
+
+                          <div className="mt-4 space-y-2">
+                            <Button
+                                asChild
+                                className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+                            >
+                              {role === 'MANAGER' ? (
+                                  <Link
+                                      href="/manager"
+                                      onClick={() => setIsUserMenuOpen(false)}
+                                  >
+                                    매니저 대시보드
+                                  </Link>
+                              ) : (
+                                  <Link
+                                      href={profileHref}
+                                      onClick={() => setIsUserMenuOpen(false)}
+                                  >
+                                    프로필 보기
+                                  </Link>
+                              )}
+                            </Button>
+                            {role === 'MANAGER' && (
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="w-full border-blue-200 text-blue-600 hover:border-blue-400 hover:bg-blue-50"
+                                >
+                                  <Link
+                                      href="/manager"
+                                      onClick={() => setIsUserMenuOpen(false)}
+                                  >
+                                    프로필 설정
+                                  </Link>
+                                </Button>
+                            )}
+                            <Button
+                                variant="outline"
+                                className="w-full border-border hover:border-primary hover:text-primary"
+                                onClick={handleLogout}
+                            >
+                              로그아웃
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              className="border-border text-xs transition-all duration-200 hover:border-primary hover:text-primary hover:shadow-[0_0_0_2px_var(--primary-light)] sm:text-sm"
-              asChild
-            >
-              <Link href="/login">Sign In</Link>
-            </Button>
-          )}
-        </div>
-      </nav>
-    </header>
+            ) : (
+                <Button
+                    variant="outline"
+                    className="border-border text-xs transition-all duration-200 hover:border-primary hover:text-primary hover:shadow-[0_0_0_2px_var(--primary-light)] sm:text-sm"
+                    asChild
+                >
+                  <Link href="/login">Sign In</Link>
+                </Button>
+            )}
+          </div>
+        </nav>
+      </header>
   );
 }
