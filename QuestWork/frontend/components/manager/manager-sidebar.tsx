@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react' // 💡 useState, useEffect 추가
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -65,7 +66,22 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 export function ManagerSidebar() {
-  const pathname = usePathname()
+    const pathname = usePathname()
+
+    // 💡 상태 추가: 기본값은 빈 문자열 또는 로딩용 텍스트
+    const [userInfo, setUserInfo] = useState({
+        nickname: '',
+        initial: 'M' // 이름의 첫 글자 대용
+    })
+
+    useEffect(() => {
+        // 클라이언트 사이드에서만 실행됨
+        const savedNickname = localStorage.getItem('nickname') || '매니저'
+        setUserInfo({
+            nickname: savedNickname,
+            initial: savedNickname.charAt(0).toUpperCase() // 이름 첫 글자 추출
+        })
+    }, [])
 
   return (
     <aside className="hidden w-56 flex-shrink-0 border-r border-border bg-surface lg:flex lg:flex-col">

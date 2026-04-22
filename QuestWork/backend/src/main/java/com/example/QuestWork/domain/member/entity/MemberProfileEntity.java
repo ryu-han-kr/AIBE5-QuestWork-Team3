@@ -47,8 +47,8 @@ public class MemberProfileEntity {
 
 //프로필 업데이트 석민이꺼
     public void updateProfile(String intro, MemberLevel level, String portfolioUrl, int totalCareerYears) {
-        this.intro = intro;
-        this.level = level;
+        if (intro != null) this.intro = intro;
+        if (level != null) this.level = level;
         this.portfolioUrl = portfolioUrl;
         this.totalCareerYears = totalCareerYears;
     }

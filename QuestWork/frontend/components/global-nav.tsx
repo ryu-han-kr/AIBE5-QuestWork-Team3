@@ -69,12 +69,15 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
 
   const [nickname, setNickname] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [role, setRole] = useState<'USER' | 'MANAGER'>('USER');
 
   useEffect(() => {
     setNickname(localStorage.getItem("nickname"));
     setProfileImage(
       localStorage.getItem("profileImage") || localStorage.getItem("avatar"),
     );
+    const storedRole = localStorage.getItem("role") as 'USER' | 'MANAGER' | null;
+    setRole(storedRole || 'USER');
   }, []);
 
   const userProfileImage =
@@ -156,7 +159,14 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
             Blog
           </Link>
 
-          {isLoggedIn && (
+          {isLoggedIn && role === 'MANAGER' ? (
+            <Link
+              href="/manager"
+              className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+            >
+              Manager Dashboard
+            </Link>
+          ) : isLoggedIn ? (
             <div
               className="relative"
               onMouseEnter={makeEnter(setIsMyPageOpen, myPageCloseRef)}
@@ -186,7 +196,7 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
                 </div>
               )}
             </div>
-          )}
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">
@@ -199,19 +209,30 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
               <button
                 type="button"
                 onClick={() => setIsUserMenuOpen((open) => !open)}
-                className="flex items-center gap-2 rounded-lg border border-border bg-background px-2 py-1.5 shadow-sm transition-all duration-200 hover:border-primary hover:bg-primary-light hover:shadow-[0_0_0_2px_var(--primary-light)]"
+                className={`flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5 shadow-sm transition-all duration-200 ${
+                  role === 'MANAGER'
+                    ? 'border-blue-500 hover:border-blue-600 hover:bg-blue-50 hover:shadow-[0_0_0_2px_var(--blue-200)]'
+                    : 'border-border hover:border-primary hover:bg-primary-light hover:shadow-[0_0_0_2px_var(--primary-light)]'
+                }`}
                 aria-expanded={isUserMenuOpen}
                 aria-haspopup="menu"
               >
-                <Avatar className="size-8 border border-primary/20 bg-primary-light">
+                <Avatar className={`size-8 bg-primary-light ${role === 'MANAGER' ? 'border-2 border-blue-500' : 'border border-primary/20'}`}>
                   <AvatarImage src={userProfileImage} alt={nickname} />
                   <AvatarFallback className="bg-primary-light text-xs font-semibold text-primary">
                     {avatarFallback}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden max-w-24 truncate text-sm font-medium text-foreground sm:inline">
-                  {nickname}님
-                </span>
+                <div className="hidden max-w-24 truncate sm:inline">
+                  <span className="text-sm font-medium text-foreground">
+                    {nickname}님
+                  </span>
+                  {role === 'MANAGER' && (
+                    <div className="mt-0.5 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
+                      Manager
+                    </div>
+                  )}
+                </div>
               </button>
 
               {isUserMenuOpen && (
@@ -236,13 +257,36 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
                         asChild
                         className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
                       >
-                        <Link
-                          href={profileHref}
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          프로필 보기
-                        </Link>
+                        {role === 'MANAGER' ? (
+                          <Link
+                            href="/manager"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            매니저 대시보드
+                          </Link>
+                        ) : (
+                          <Link
+                            href={profileHref}
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            프로필 보기
+                          </Link>
+                        )}
                       </Button>
+                      {role === 'MANAGER' && (
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full border-blue-200 text-blue-600 hover:border-blue-400 hover:bg-blue-50"
+                        >
+                          <Link
+                            href="/manager"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            프로필 설정
+                          </Link>
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         className="w-full border-border hover:border-primary hover:text-primary"
