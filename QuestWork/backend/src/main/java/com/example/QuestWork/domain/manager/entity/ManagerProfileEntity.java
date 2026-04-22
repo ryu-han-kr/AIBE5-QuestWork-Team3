@@ -39,4 +39,20 @@ public class ManagerProfileEntity {
     @Builder.Default
     @Column(nullable = false)
     private boolean approved = false;
+
+    public void updateManagerInfo(String managerName, String companyName, String contactPhone, String businessNumber) {
+        // 값이 존재할 때만 업데이트하도록 방어 로직을 추가하면 더 안전합니다.
+        if (managerName != null && !managerName.trim().isEmpty()) {
+            this.managerName = managerName;
+        }
+        if (companyName != null && !companyName.trim().isEmpty()) {
+            this.companyName = companyName;
+        }
+        if (contactPhone != null && !contactPhone.trim().isEmpty()) {
+            this.contact_phone = contactPhone; // DB 필드명에 맞춰 대입
+        }
+        if (businessNumber != null && !businessNumber.trim().isEmpty()) {
+            this.businessNumber = businessNumber;
+        }
+    }
 }

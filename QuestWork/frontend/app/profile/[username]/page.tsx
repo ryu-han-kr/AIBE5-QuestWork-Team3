@@ -139,16 +139,16 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
   const getNextDeadline = () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    
+
     const futureQuests = MOCK_QUESTS.filter(quest => new Date(quest.deadline) >= today)
       .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
-    
+
     if (futureQuests.length === 0) return null
-    
+
     const nextQuest = futureQuests[0]
     const deadlineDate = new Date(nextQuest.deadline)
     const daysDiff = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24))
-    
+
     return {
       title: nextQuest.title,
       days: daysDiff === 0 ? 'D-Day' : `D-${daysDiff}`
@@ -157,8 +157,33 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
 
   const saveProfile = async () => {
     if (!draft || !profile) return;
+
     try {
-      // 💡 여기서 실제 backend API (PATCH/PUT) 호출 필요
+      // 1. 백엔드 API 호출 (주소: /api/user/[username], 메서드: PUT)
+      const response = await fetch(`http://localhost:8000/api/user/${profile.username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // 백엔드 MemberUpdateDto 필드명에 맞춰서 전송
+        body: JSON.stringify({
+          nickname: draft.nickname,
+          intro: draft.intro,
+          level: draft.level, // "BRONZE", "SILVER" 등 대문자 문자열
+          portfolioUrl: draft.portfolioUrl,
+          totalCareerYears: Number(draft.totalCareerYears) // 반드시 숫자로 변환
+        }),
+      });
+
+      // 2. 응답 결과 확인
+      if (!response.ok) {
+        // 403이나 500 에러가 나면 여기서 걸러집니다.
+        const errorData = await response.text();
+        console.error("서버 응답 에러:", errorData);
+        throw new Error("서버 저장 실패");
+      }
+
+      // 3. 서버 저장 성공 시 프론트엔드 상태(UI) 업데이트
       setProfile({
         ...profile,
         nickname: draft.nickname,
@@ -169,11 +194,16 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
         totalCareerYears: Number(draft.totalCareerYears),
         techStack: draft.techStack
       });
+
       setIsEditing(false);
+      alert("프로필이 성공적으로 저장되었습니다!");
+
     } catch (error) {
-      alert("저장 실패");
+      // 네트워크 장애나 위에서 던진 Error 처리
+      console.error("저장 중 에러 발생:", error);
+      alert("저장에 실패했습니다. 서버 로그나 주소를 확인해주세요.");
     }
-  }
+  };
 
   if (isLoading) return <div className="flex h-screen items-center justify-center font-bold text-xl">유저 데이터를 가져오는 중입니다...</div>
   if (!profile) return <div className="flex h-screen items-center justify-center font-bold text-red-500">유저 정보를 찾을 수 없습니다.</div>

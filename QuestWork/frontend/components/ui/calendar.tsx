@@ -11,6 +11,16 @@ import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
 
+interface Quest {
+  id: string
+  title: string
+  description: string
+  rewardAmount: number
+  deadline: string
+  status: 'active' | 'completed' | 'draft'
+  createdAt: string
+}
+
 function Calendar({
   className,
   classNames,
@@ -19,9 +29,11 @@ function Calendar({
   buttonVariant = 'ghost',
   formatters,
   components,
+  quests = [],
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>['variant']
+  quests?: Quest[]
 }) {
   const defaultClassNames = getDefaultClassNames()
 
@@ -155,7 +167,7 @@ function Calendar({
             <ChevronDownIcon className={cn('size-4', className)} {...props} />
           )
         },
-        DayButton: CalendarDayButton,
+        DayButton: (props) => <CalendarDayButton {...props} quests={quests} />,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -176,14 +188,24 @@ function CalendarDayButton({
   className,
   day,
   modifiers,
+  quests = [],
   ...props
-}: React.ComponentProps<typeof DayButton>) {
+}: React.ComponentProps<typeof DayButton> & {
+  quests?: Quest[]
+}) {
   const defaultClassNames = getDefaultClassNames()
 
   const ref = React.useRef<HTMLButtonElement>(null)
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])
+
+  // 해당 날짜의 퀘스트 필터링
+  const dayQuests = quests.filter(quest => {
+    const questDate = new Date(quest.deadline)
+    const currentDate = new Date(day.date)
+    return questDate.toDateString() === currentDate.toDateString()
+  })
 
   return (
     <Button
@@ -206,7 +228,32 @@ function CalendarDayButton({
         className,
       )}
       {...props}
-    />
+    >
+      <span>{day.date.getDate()}</span>
+      {dayQuests.length > 0 && (
+        <div className="flex flex-col gap-0.5 w-full mt-0.5">
+          {dayQuests.slice(0, 2).map((quest) => (
+            <div
+              key={quest.id}
+              className="bg-purple-500 text-white text-xs px-1 py-0.5 rounded truncate cursor-pointer hover:bg-purple-600 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                // TODO: 퀘스트 상세 정보 모달 표시 또는 상세 페이지로 이동
+                console.log('Quest clicked:', quest)
+              }}
+              title={quest.title}
+            >
+              {quest.title}
+            </div>
+          ))}
+          {dayQuests.length > 2 && (
+            <div className="text-xs text-purple-600 truncate">
+              +{dayQuests.length - 2} more
+            </div>
+          )}
+        </div>
+      )}
+    </Button>
   )
 }
 

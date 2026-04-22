@@ -19,18 +19,13 @@ public class MemberProfileController {
     /**
      * 마이페이지 프로필 조회
      */
-    @GetMapping("/{username}")
-    public ResponseEntity<MemberProfileDto> getProfile(@PathVariable String username) {
-        MemberProfileDto profile = memberProfileService.getProfile(username);
-        return ResponseEntity.ok(profile);
+    @GetMapping("/{userId}") // 💡 주소는 그대로지만 타입이 숫자형이 됩니다.
+    public ResponseEntity<MemberProfileDto> getProfile(@PathVariable Long userId) {
+        return ResponseEntity.ok(memberProfileService.getProfile(userId));
     }
-    @PutMapping("/{username}")
-    public ResponseEntity<String> updateProfile(
-            @PathVariable("username") String username,
-            @RequestBody MemberUpdateDto updateDto) { // JSON 데이터를 DTO로 자동 변환
-
-        memberProfileService.updateProfile(username, updateDto);
-
-        return ResponseEntity.ok("프로필 수정이 완료되었습니다.");
+    @PutMapping("/{userId}")
+    public ResponseEntity<String> updateProfile(@PathVariable Long userId, @RequestBody MemberUpdateDto dto) {
+        memberProfileService.updateProfile(userId, dto);
+        return ResponseEntity.ok("수정 완료");
     }
 }
