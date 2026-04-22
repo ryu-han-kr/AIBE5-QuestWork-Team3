@@ -67,49 +67,31 @@ export default function CreateQuestPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-<<<<<<< HEAD
     e.preventDefault();
 
     const managerId = Number(localStorage.getItem("userId"));
     if (!managerId) {
       alert("로그인이 필요합니다.");
       return;
-=======
-    e.preventDefault()
-
-    const managerId = Number(localStorage.getItem('userId'))
-    if (!managerId) {
-      alert('로그인이 필요합니다.')
-      return
->>>>>>> 645c541d75f07450c0fd26b4688add162eb629b8
     }
 
     const requestBody = {
       managerId,
       title: formData.title,
       rewardAmount: Number(formData.reward),
-<<<<<<< HEAD
       deadline: formData.deadline + "T00:00:00",
-=======
-      deadline: formData.deadline + 'T00:00:00',
->>>>>>> 645c541d75f07450c0fd26b4688add162eb629b8
       formData: {
         description: formData.description,
         techStack: formData.techStack,
         difficulty: formData.difficulty,
         submissionFormats: formData.submissionFormats,
       },
-<<<<<<< HEAD
     };
-=======
-    }
->>>>>>> 645c541d75f07450c0fd26b4688add162eb629b8
 
     try {
       const response = await fetch(
         `http://localhost:8000/api/quests?managerId=${managerId}`,
         {
-<<<<<<< HEAD
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
@@ -132,28 +114,6 @@ export default function CreateQuestPage() {
       alert("서버 연결에 실패했습니다.");
     }
   };
-=======
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        }
-      )
-
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Quest created:', data)
-        setSubmitted(true)
-        setTimeout(() => setSubmitted(false), 3000)
-      } else {
-        const error = await response.json()
-        alert(`퀘스트 생성 실패: ${error.message || '서버 오류가 발생했습니다'}`)
-      }
-    } catch (error) {
-      console.error('퀘스트 생성 중 오류:', error)
-      alert('서버 연결에 실패했습니다.')
-    }
-  }
->>>>>>> 645c541d75f07450c0fd26b4688add162eb629b8
 
   return (
     <div className="min-h-screen bg-background">
