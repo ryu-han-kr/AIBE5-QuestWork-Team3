@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -29,15 +29,15 @@ interface SubmissionsReviewSectionProps {
 }
 
 const statusBadgeColor = {
-  reviewing: 'bg-quest-in-progress text-white',
-  winner: 'bg-quest-open text-white',
-  rejected: 'bg-quest-closed text-white',
+  reviewing: 'bg-blue-100 text-blue-700',
+  winner: 'bg-green-100 text-green-700',
+  rejected: 'bg-slate-100 text-slate-700',
 }
 
 const statusLabel = {
-  reviewing: '검토 중',
-  winner: '선정됨',
-  rejected: '미선정',
+  reviewing: 'Reviewing',
+  winner: 'Winner',
+  rejected: 'Rejected',
 }
 
 export function SubmissionsReviewSection({
@@ -48,27 +48,36 @@ export function SubmissionsReviewSection({
 
   return (
     <>
-      <Card className="border border-border">
-        <div className="border-b border-border p-6">
-          <h2 className="text-xl font-semibold text-foreground">제출 제안서 검토</h2>
+      <Card className="border border-border shadow-none">
+        <div className="p-6">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-foreground">
+              Submission Review
+            </h2>
+            <p className="mt-1 text-sm text-foreground-muted">
+              Compare incoming work and move quickly from review to decision.
+            </p>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>프리랜서</TableHead>
-                <TableHead>퀘스트</TableHead>
-                <TableHead>제출일</TableHead>
-                <TableHead>상태</TableHead>
-                <TableHead className="text-right">작업</TableHead>
+                <TableHead>Freelancer</TableHead>
+                <TableHead>Quest</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {submissions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="py-8 text-center">
-                    <p className="text-foreground-muted">제출된 제안서가 없습니다.</p>
+                    <p className="text-foreground-muted">
+                      No submissions are waiting for review.
+                    </p>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -94,7 +103,7 @@ export function SubmissionsReviewSection({
                         size="sm"
                         onClick={() => setSelectedSubmission(submission)}
                       >
-                        검토
+                        Review
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -110,7 +119,7 @@ export function SubmissionsReviewSection({
           submission={selectedSubmission}
           onClose={() => setSelectedSubmission(null)}
           onSelect={(id) => {
-            console.log('[v0] Winner selected:', id)
+            console.log('[manager-dashboard] Winner selected:', id)
             setSelectedSubmission(null)
           }}
         />

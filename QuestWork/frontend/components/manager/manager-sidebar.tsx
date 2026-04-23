@@ -1,51 +1,56 @@
 'use client'
 
-import { useState, useEffect } from 'react' // 💡 useState, useEffect 추가
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
   label: string
   href: string
-  icon: React.ReactNode
+  hash?: string
+  icon: ReactNode
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
-    label: '대시보드',
+    label: 'Overview',
     href: '/manager',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="1.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="9.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="1.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="9.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     ),
   },
   {
-    label: '등록된 퀘스트',
-    href: '/manager/quests',
+    label: 'Posted Quests',
+    href: '/manager#posted-quests',
+    hash: '#posted-quests',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 2h12v12H2z" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M2 5h12M5 2v12" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3 2.5h10a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M4.75 5.5h6.5M4.75 8h6.5M4.75 10.5h3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
   },
   {
-    label: '제출 현황',
-    href: '/manager/submissions',
+    label: 'Submission Review',
+    href: '/manager#submission-review',
+    hash: '#submission-review',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 3h12M2 8h8M2 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M3 2.5h7l3 3V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M10 2.5V5a1 1 0 0 0 1 1h2M4.75 8.5h6.5M4.75 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
   },
   {
-    label: '보상 관리',
-    href: '/manager/rewards',
+    label: 'Reward Management',
+    href: '/manager#reward-management',
+    hash: '#reward-management',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" />
@@ -54,8 +59,9 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    label: '설정',
-    href: '/manager/settings',
+    label: 'Profile Settings',
+    href: '/manager#profile-settings',
+    hash: '#profile-settings',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
@@ -66,50 +72,60 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 export function ManagerSidebar() {
-    const pathname = usePathname()
+  const pathname = usePathname()
+  const [activeHash, setActiveHash] = useState('')
+  const [userInfo, setUserInfo] = useState({
+    nickname: 'Manager',
+    initial: 'M',
+    roleLabel: 'Manager workspace',
+  })
 
-    // 💡 상태 추가: 기본값은 빈 문자열 또는 로딩용 텍스트
-    const [userInfo, setUserInfo] = useState({
-        nickname: '',
-        initial: 'M' // 이름의 첫 글자 대용
+  useEffect(() => {
+    const savedNickname = localStorage.getItem('nickname') || 'Manager'
+    const savedRole = localStorage.getItem('role') || 'MANAGER'
+
+    setUserInfo({
+      nickname: savedNickname,
+      initial: savedNickname.charAt(0).toUpperCase() || 'M',
+      roleLabel: savedRole === 'ADMIN' ? 'Admin workspace' : 'Manager workspace',
     })
 
-    useEffect(() => {
-        const savedNickname = localStorage.getItem('nickname') || '매니저'
-        const savedRole = localStorage.getItem('role') || 'MANAGER'
+    const syncHash = () => setActiveHash(window.location.hash)
+    syncHash()
+    window.addEventListener('hashchange', syncHash)
 
-        setUserInfo({
-            nickname: savedNickname,
-            initial: savedNickname.charAt(0).toUpperCase(),
-            role: savedRole // 유저 권한 정보도 추가로 저장
-        })
-    }, [])
+    return () => window.removeEventListener('hashchange', syncHash)
+  }, [])
 
   return (
-      <aside className="hidden w-56 flex-shrink-0 border-r border-border bg-surface lg:flex lg:flex-col">
-          {/* Company Info */}
-          <div className="border-b border-border p-5">
-              <div className="flex items-center gap-3">
-                  {/* 💡 T 대신 이름의 첫 글자(initial)가 나오도록 수정 */}
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                      {userInfo.initial}
-                  </div>
-                  <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                          {userInfo.nickname}
-                      </p>
-                      <p className="truncate text-xs text-foreground-muted">
-                          {userInfo.role === 'ADMIN' ? '관리자' : '매니저'}
-                      </p>
-                  </div>
-              </div>
+    <aside className="sticky top-[73px] hidden h-[calc(100vh-73px)] w-56 flex-shrink-0 self-start overflow-y-auto border-r border-border bg-surface lg:flex lg:flex-col">
+      <div className="border-b border-border px-5 py-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-foreground-subtle">
+          Manager
+        </p>
+        <div className="mt-3 flex items-center gap-3">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+            {userInfo.initial}
           </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-foreground">
+              {userInfo.nickname}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-foreground-muted">
+              {userInfo.roleLabel}
+            </p>
+          </div>
+        </div>
+      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-3" aria-label="매니저 내비게이션">
+      <nav className="flex-1 p-3" aria-label="Manager navigation">
         <ul className="space-y-0.5">
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href
+            const isOverview = !item.hash
+            const isActive =
+              pathname === '/manager' &&
+              ((isOverview && !activeHash) || (!isOverview && activeHash === item.hash))
+
             return (
               <li key={item.href}>
                 <Link
@@ -118,14 +134,14 @@ export function ManagerSidebar() {
                     'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                     isActive
                       ? 'bg-primary-light text-primary'
-                      : 'text-foreground-muted hover:bg-surface-raised hover:text-foreground'
+                      : 'text-foreground-muted hover:bg-surface-raised hover:text-foreground',
                   )}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <span
                     className={cn(
                       'flex-shrink-0',
-                      isActive ? 'text-primary' : 'text-foreground-muted'
+                      isActive ? 'text-primary' : 'text-foreground-muted',
                     )}
                   >
                     {item.icon}
@@ -137,6 +153,18 @@ export function ManagerSidebar() {
           })}
         </ul>
       </nav>
+
+      <div className="border-t border-border p-3">
+        <Link
+          href="/manager/create-quest"
+          className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:bg-surface-raised hover:text-foreground"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M8 3v10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          Create Quest
+        </Link>
+      </div>
     </aside>
   )
 }

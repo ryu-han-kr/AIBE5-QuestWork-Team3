@@ -29,16 +29,8 @@ const QUEST_CATEGORIES = [
   },
 ];
 
-const MY_PAGE_LINKS = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "My Submissions", href: "/dashboard/my-submissions" },
-  { label: "Rewards", href: "/dashboard" },
-  { label: "Profile Settings", href: "/profile/settings" },
-];
-
 export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const [isQuestsOpen, setIsQuestsOpen] = useState(false);
-  const [isMyPageOpen, setIsMyPageOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [nickname, setNickname] = useState<string | null>(null);
@@ -46,7 +38,6 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const [role, setRole] = useState<"USER" | "MANAGER">("USER");
 
   const questsCloseRef = useRef<NodeJS.Timeout | null>(null);
-  const myPageCloseRef = useRef<NodeJS.Timeout | null>(null);
   const userMenuCloseRef = useRef<NodeJS.Timeout | null>(null);
 
   const makeEnter =
@@ -185,46 +176,6 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
             >
               Blog
             </Link>
-
-            {isAuthenticated && role === "MANAGER" ? (
-              <Link
-                href="/manager"
-                className="rounded-full px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
-              >
-                Manager Dashboard
-              </Link>
-            ) : isAuthenticated ? (
-              <div
-                className="relative"
-                onMouseEnter={makeEnter(setIsMyPageOpen, myPageCloseRef)}
-                onMouseLeave={makeLeave(setIsMyPageOpen, myPageCloseRef)}
-              >
-                <button
-                  type="button"
-                  onClick={() => setIsMyPageOpen((open) => !open)}
-                  className="rounded-full px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
-                >
-                  My Page
-                </button>
-
-                {isMyPageOpen && (
-                  <div className="absolute left-1/2 top-full z-30 w-56 -translate-x-1/2 pt-4">
-                    <div className="rounded-2xl border border-border bg-background py-2 shadow-xl shadow-primary/8">
-                      {MY_PAGE_LINKS.map((item) => (
-                        <Link
-                          key={item.label}
-                          href={item.href}
-                          onClick={() => setIsMyPageOpen(false)}
-                          className="block px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-surface hover:text-primary"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : null}
           </div>
         </div>
 
@@ -287,21 +238,26 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
                         asChild
                         className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
                       >
-                        {role === "MANAGER" ? (
-                          <Link
-                            href="/manager"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            Open Manager Dashboard
-                          </Link>
-                        ) : (
-                          <Link
-                            href={profileHref}
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            View Profile
-                          </Link>
-                        )}
+                        <Link
+                          href={role === "MANAGER" ? "/manager" : profileHref}
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          {role === "MANAGER"
+                            ? "Manager Dashboard"
+                            : "View Profile"}
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full border-border hover:border-primary hover:text-primary"
+                        asChild
+                      >
+                        <Link
+                          href="/profile/settings"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Profile Settings
+                        </Link>
                       </Button>
                       <Button
                         variant="outline"

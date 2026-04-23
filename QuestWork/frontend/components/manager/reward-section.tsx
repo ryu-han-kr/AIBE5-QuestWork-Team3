@@ -1,28 +1,32 @@
 'use client'
 
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 export function RewardSection() {
   const selectedWinner = {
-    name: '김개발',
-    reward: '₩1,500,000',
+    name: 'Kim Developer',
+    reward: '1,500,000 KRW',
     questTitle: 'REST API for Microservices Architecture',
   }
 
   return (
-    <Card className="border border-border">
-      <div className="border-b border-border p-6">
-        <h2 className="text-xl font-semibold text-foreground">보상 지급 관리</h2>
-      </div>
+    <Card className="border border-border shadow-none">
+      <div className="p-6">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-foreground">
+            Reward Management
+          </h2>
+          <p className="mt-1 text-sm text-foreground-muted">
+            Keep payment status visible and move from winner selection to payout.
+          </p>
+        </div>
 
-      <div className="p-6 space-y-6">
-        {/* Selected Winner */}
-        <div className="rounded-lg bg-surface-raised p-6">
+        <div className="rounded-lg border border-border bg-surface p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <p className="text-sm text-foreground-muted">선정된 프리랜서</p>
+              <p className="text-sm text-foreground-muted">Selected winner</p>
               <h3 className="mt-2 text-lg font-semibold text-foreground">
                 {selectedWinner.name}
               </h3>
@@ -30,36 +34,35 @@ export function RewardSection() {
                 {selectedWinner.questTitle}
               </p>
             </div>
-            <Badge className="bg-quest-open text-white">선정됨</Badge>
+            <Badge className="bg-green-100 text-green-700">Winner</Badge>
           </div>
         </div>
 
-        {/* Reward Amount */}
-        <div>
-          <p className="text-sm font-semibold text-foreground-muted">보상 금액</p>
+        <div className="mt-6">
+          <p className="text-sm font-semibold text-foreground-muted">
+            Reward amount
+          </p>
           <p className="mt-2 text-3xl font-bold text-primary">
             {selectedWinner.reward}
           </p>
         </div>
 
-        {/* Payment Status */}
-        <div className="space-y-2">
+        <div className="mt-6 space-y-2">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-quest-open" />
-            <span className="text-sm text-foreground">결제 대기 중</span>
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <span className="text-sm text-foreground">Payment pending</span>
           </div>
           <p className="text-xs text-foreground-muted">
-            결제를 승인하면 프리랜서에게 보상이 지급됩니다.
+            Confirming the payout will release the reward to the selected freelancer.
           </p>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex gap-3 pt-4">
+        <div className="mt-6 flex gap-3 pt-2">
           <Button variant="outline" className="flex-1">
-            결제 취소
+            Cancel Payment
           </Button>
           <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary-hover">
-            결제 승인 및 지급
+            Confirm and Pay
           </Button>
         </div>
       </div>
