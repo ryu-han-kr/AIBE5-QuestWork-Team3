@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,19 +24,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 💡 스웨거 UI 및 API 문서 관련 주소들을 명시적으로 허용
-                        .requestMatchers(
-                                "/",
-                                "/api/auth/**",
-                                "/api/admin/**",
-                                "/api/member/**",
-                                "/api/quests",
-                                "/api/**",
-                                "/v3/api-docs/**",    // 스웨거가 생성하는 json 데이터 주소
-                                "/swagger-ui/**",     // 스웨거 UI 화면 주소
-                                "/swagger-ui.html"    // 스웨거 접속 메인 주소
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/**")).permitAll()
                 )
                 .formLogin(form -> form.disable());
         return http.build();

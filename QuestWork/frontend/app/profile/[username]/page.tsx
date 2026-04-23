@@ -214,7 +214,7 @@ export default function ProfilePage({
         deadline: selectedDate.toISOString().split("T")[0],
       };
       // 실제로는 API 호출, 여기서는 Mock 업데이트
-      MOCK_QUESTS.push(newquest);
+      MOCK_QUESTS.push(newQuest);
       setNewQuestTitle("");
       setNewQuestStatus("진행중");
       setSelectedDate(undefined);
@@ -236,7 +236,7 @@ export default function ProfilePage({
 
     const nextQuest = futureQuests[0];
     const deadlineDate = new Date(nextQuest.deadline);
-    const daysDiff = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+    const daysDiff = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     return {
       title: nextQuest.title,
@@ -723,7 +723,7 @@ export default function ProfilePage({
                       today.setHours(0, 0, 0, 0);
                       const deadlineDate = new Date(quest.deadline);
                       const daysDiff = Math.ceil(
-                        (deadlineDate - today) / (1000 * 60 * 60 * 24),
+                        (deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
                       );
                       const dDisplay =
                         daysDiff === 0
