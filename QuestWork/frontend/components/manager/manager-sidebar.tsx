@@ -14,7 +14,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    label: 'Overview',
+    label: '대시보드',
     href: '/manager',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -26,7 +26,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    label: 'Posted Quests',
+    label: '등록한 퀘스트',
     href: '/manager#posted-quests',
     hash: '#posted-quests',
     icon: (
@@ -37,7 +37,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    label: 'Submission Review',
+    label: '제출 검토',
     href: '/manager#submission-review',
     hash: '#submission-review',
     icon: (
@@ -48,7 +48,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    label: 'Reward Management',
+    label: '보상 관리',
     href: '/manager#reward-management',
     hash: '#reward-management',
     icon: (
@@ -59,7 +59,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    label: 'Profile Settings',
+    label: '프로필 설정',
     href: '/manager#profile-settings',
     hash: '#profile-settings',
     icon: (
@@ -77,7 +77,7 @@ export function ManagerSidebar() {
   const [userInfo, setUserInfo] = useState({
     nickname: 'Manager',
     initial: 'M',
-    roleLabel: 'Manager workspace',
+    roleLabel: '매니저 워크스페이스',
   })
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export function ManagerSidebar() {
     setUserInfo({
       nickname: savedNickname,
       initial: savedNickname.charAt(0).toUpperCase() || 'M',
-      roleLabel: savedRole === 'ADMIN' ? 'Admin workspace' : 'Manager workspace',
+      roleLabel: savedRole === 'ADMIN' ? '관리자 워크스페이스' : '매니저 워크스페이스',
     })
 
     const syncHash = () => setActiveHash(window.location.hash)
@@ -118,7 +118,7 @@ export function ManagerSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-3" aria-label="Manager navigation">
+      <nav className="flex-1 p-3" aria-label="매니저 내비게이션">
         <ul className="space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const isOverview = !item.hash
@@ -162,7 +162,7 @@ export function ManagerSidebar() {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M8 3v10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          Create Quest
+          퀘스트 생성
         </Link>
       </div>
     </aside>
