@@ -1,330 +1,243 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { AlertCircle } from 'lucide-react'
+import { getStoredSubmissions } from '@/lib/quest-submissions'
 import { GlobalNav } from '@/components/global-nav'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { StatCard } from '@/components/dashboard/stat-card'
+import { ManagerProfileForm } from '@/components/manager/manager-profile-form'
 import { ManagerSidebar } from '@/components/manager/manager-sidebar'
+import { PostedQuestsSection } from '@/components/manager/posted-quests-section'
+import { RewardSection } from '@/components/manager/reward-section'
+import { SubmissionsReviewSection } from '@/components/manager/submissions-review-section'
+import { Calendar } from '@/components/ui/calendar'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-const TECH_STACK_OPTIONS = [
-  'React',
-  'Next.js',
-  'Java',
-  'Spring',
-  'Node.js',
-  'Python',
-]
+interface StoredSubmission {
+  id: string
+  freelancerName: string
+  questTitle: string
+  questId: string
+  submittedAt: string
+  status: 'reviewing' | 'winner' | 'rejected'
+  githubUrl: string
+}
 
-const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
+export default function ManagerDashboardPage() {
+  const pathname = usePathname()
+  const [dbQuests, setDbQuests] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
+  const [userId, setUserId] = useState<number | null>(null)
+  const [savedSubmissions, setSavedSubmissions] = useState<StoredSubmission[]>([])
+  const [activeTab, setActiveTab] = useState('overview')
 
-const SUBMISSION_FORMAT_OPTIONS = [
-  { id: 'github', label: 'GitHub Repository' },
-  { id: 'file', label: 'File Upload' },
-]
+  useEffect(() => {
+    const savedId = localStorage.getItem('userId') || localStorage.getItem('id')
+    const role = localStorage.getItem('role')
 
-export default function CreateQuestPage() {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    techStack: [] as string[],
-    reward: '',
-    deadline: '',
-    difficulty: '',
-    submissionFormats: [] as string[],
-  })
+    setIsAuthorized(role === 'MANAGER')
 
-  const [submitted, setSubmitted] = useState(false)
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleTechStackChange = (tech: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      techStack: prev.techStack.includes(tech)
-        ? prev.techStack.filter((t) => t !== tech)
-        : [...prev.techStack, tech],
-    }))
-  }
-
-  const handleDifficultyChange = (difficulty: string) => {
-    setFormData((prev) => ({ ...prev, difficulty }))
-  }
-
-  const handleSubmissionFormatChange = (format: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      submissionFormats: prev.submissionFormats.includes(format)
-        ? prev.submissionFormats.filter((f) => f !== format)
-        : [...prev.submissionFormats, format],
-    }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    const managerId = Number(localStorage.getItem('userId'))
-    if (!managerId) {
-      alert('로그인이 필요합니다.')
-      return
+    if (savedId) {
+      setUserId(Number(savedId))
     }
+  }, [])
 
-    const requestBody = {
-      managerId,
-      title: formData.title,
-      rewardAmount: Number(formData.reward),
-      deadline: formData.deadline + 'T23:59:59',
-      formData: {
-        description: formData.description,
-        techStack: formData.techStack,
-        difficulty: formData.difficulty,
-        submissionFormats: formData.submissionFormats,
-      },
-    }
+  useEffect(() => {
+    const fetchQuests = async () => {
+      if (!userId) return
 
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/quests?managerId=${managerId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        }
-      )
-
-      if (response.ok) {
+      setIsLoading(true)
+      try {
+        const response = await fetch(`http://localhost:8000/api/quests/manager/${userId}`)
+        if (!response.ok) throw new Error('Failed to load manager quests')
         const data = await response.json()
-        console.log('Quest created:', data)
-        setSubmitted(true)
-        setTimeout(() => setSubmitted(false), 3000)
-      } else {
-        const error = await response.json().catch(() => ({}))
-        const detail = error.errors
-          ? error.errors.map((e: { field: string; defaultMessage: string }) => `${e.field}: ${e.defaultMessage}`).join('\n')
-          : (error.message || error.error || '서버 오류가 발생했습니다')
-        alert(`퀘스트 생성 실패:\n${detail}`)
+        setDbQuests(data)
+      } catch (error) {
+        console.error('Fetch Error:', error)
+      } finally {
+        setIsLoading(false)
       }
-    } catch (error) {
-      console.error('퀘스트 생성 중 오류:', error)
-      alert('서버 연결에 실패했습니다.')
     }
-  }
+
+    if (isAuthorized === true) {
+      fetchQuests()
+    }
+  }, [isAuthorized, userId])
+
+  useEffect(() => {
+    const stored = getStoredSubmissions().map((submission) => ({
+      id: submission.id,
+      freelancerName: submission.freelancerName,
+      questTitle: submission.questTitle,
+      questId: submission.questId,
+      submittedAt: submission.submittedAt,
+      status: 'reviewing' as const,
+      githubUrl: submission.githubUrl ?? `File submission: ${submission.fileName ?? 'attachment'}`,
+    }))
+
+    setSavedSubmissions(stored)
+  }, [])
+
+  useEffect(() => {
+    const syncTabWithHash = () => {
+      const hash = window.location.hash
+      setActiveTab(hash === '#profile-settings' ? 'profile' : 'overview')
+    }
+
+    syncTabWithHash()
+    window.addEventListener('hashchange', syncTabWithHash)
+
+    return () => window.removeEventListener('hashchange', syncTabWithHash)
+  }, [pathname])
+
+  const mockSubmissions = useMemo(
+    () => [
+      {
+        id: 'mock-1',
+        freelancerName: 'Kim Developer',
+        questTitle: 'React Admin Dashboard Performance Optimization',
+        questId: '1',
+        submittedAt: '2024-04-10',
+        status: 'reviewing' as const,
+        githubUrl: 'https://github.com/example/react-dashboard',
+      },
+    ],
+    [],
+  )
+
+  const allSubmissions = useMemo(
+    () => [...savedSubmissions, ...mockSubmissions],
+    [mockSubmissions, savedSubmissions],
+  )
+
+  const activeQuestCount = dbQuests.filter((quest) => quest.status === 'OPEN').length
+  const closedQuestCount = dbQuests.filter((quest) => quest.status !== 'OPEN').length
+  const totalRewardBudget = dbQuests.reduce(
+    (acc, quest) => acc + (quest.rewardAmount || 0),
+    0,
+  )
+  const reviewingCount = allSubmissions.filter(
+    (submission) => submission.status === 'reviewing',
+  ).length
 
   return (
     <div className="min-h-screen bg-background">
       <GlobalNav />
 
-      <div className="flex">
-        {/* Sidebar */}
-        <ManagerSidebar />
-
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="space-y-6 p-6 lg:p-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+      <DashboardShell sidebar={<ManagerSidebar />}>
+        <div className="space-y-8">
+          {isAuthorized === false && (
+            <div className="flex gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
               <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                  새 퀘스트 등록
-                </h1>
-                <p className="mt-1 text-foreground-muted">
-                  새로운 퀘스트를 생성하여 프리랜서들의 솔루션을 받아보세요.
+                <p className="font-semibold text-red-900">
+                  Manager access is required
+                </p>
+                <p className="mt-1 text-sm text-red-700">
+                  Please sign in with a manager account to use this workspace.
                 </p>
               </div>
             </div>
+          )}
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Basic Information Card */}
-              <Card className="border border-border p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">
-                  기본 정보
-                </h2>
-
-                <div className="space-y-4">
-                  {/* Quest Title */}
-                  <div>
-                    <label className="block text-sm font-medium text-foreground">
-                      퀘스트 제목
-                    </label>
-                    <Input
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      placeholder="e.g., React Admin Dashboard Performance Optimization"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium text-foreground">
-                      퀘스트 설명
-                    </label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      placeholder="퀘스트의 상세한 설명을 입력하세요..."
-                      rows={6}
-                      className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder-foreground-muted transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-                      required
-                    />
-                  </div>
-                </div>
-              </Card>
-
-              {/* Tech Stack Card */}
-              <Card className="border border-border p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">
-                  기술 스택 요구사항
-                </h2>
-
-                <div className="flex flex-wrap gap-2">
-                  {TECH_STACK_OPTIONS.map((tech) => (
-                    <button
-                      key={tech}
-                      type="button"
-                      onClick={() => handleTechStackChange(tech)}
-                      className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
-                        formData.techStack.includes(tech)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'border border-border bg-surface text-foreground hover:border-primary hover:text-primary'
-                      }`}
-                    >
-                      {tech}
-                    </button>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Reward & Deadline Card */}
-              <Card className="border border-border p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">
-                  보상 및 기한
-                </h2>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  {/* Reward */}
-                  <div>
-                    <label className="block text-sm font-medium text-foreground">
-                      보상액 (원)
-                    </label>
-                    <Input
-                      type="number"
-                      name="reward"
-                      value={formData.reward}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 1000000"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-
-                  {/* Deadline */}
-                  <div>
-                    <label className="block text-sm font-medium text-foreground">
-                      마감일
-                    </label>
-                    <Input
-                      type="date"
-                      name="deadline"
-                      value={formData.deadline}
-                      onChange={handleInputChange}
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                </div>
-              </Card>
-
-              {/* Difficulty Card */}
-              <Card className="border border-border p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">
-                  난이도
-                </h2>
-
-                <div className="flex gap-3">
-                  {DIFFICULTY_OPTIONS.map((difficulty) => (
-                    <button
-                      key={difficulty}
-                      type="button"
-                      onClick={() => handleDifficultyChange(difficulty)}
-                      className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
-                        formData.difficulty === difficulty
-                          ? 'bg-primary text-primary-foreground'
-                          : 'border border-border bg-surface text-foreground hover:border-primary hover:text-primary'
-                      }`}
-                    >
-                      {difficulty}
-                    </button>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Submission Format Card */}
-              <Card className="border border-border p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">
-                  제출 형식
-                </h2>
-
-                <div className="space-y-2">
-                  {SUBMISSION_FORMAT_OPTIONS.map((format) => (
-                    <label
-                      key={format.id}
-                      className="flex items-center gap-2 rounded-md p-2 hover:bg-surface"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.submissionFormats.includes(format.id)}
-                        onChange={() =>
-                          handleSubmissionFormatChange(format.id)
-                        }
-                        className="h-4 w-4 cursor-pointer rounded border-border text-primary"
-                      />
-                      <span className="cursor-pointer text-sm font-medium text-foreground">
-                        {format.label}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Success Message */}
-              {submitted && (
-                <div className="rounded-md border border-green-200 bg-green-50 p-4">
-                  <p className="text-sm font-medium text-green-800">
-                    ✓ 퀘스트가 등록되었습니다!
-                  </p>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <Button
-                  type="submit"
-                  className="bg-primary text-primary-foreground hover:bg-primary-hover"
-                >
-                  퀘스트 등록하기
-                </Button>
-                <Link href="/manager">
-                  <Button type="button" variant="outline">
-                    취소
-                  </Button>
-                </Link>
-              </div>
-            </form>
+          <div>
+            <p className="text-sm font-semibold text-primary">Manager Overview</p>
+            <h1 className="mt-1 text-3xl font-bold text-foreground">
+              Manage quests, reviews, and rewards in one workspace
+            </h1>
+            <p className="mt-2 max-w-3xl text-foreground-muted">
+              The manager workspace now follows the same layout and interaction rhythm as the
+              freelancer dashboard while preserving manager-specific tools and data.
+            </p>
           </div>
-        </main>
-      </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="h-auto rounded-full border border-border/70 bg-white/70 p-1 shadow-sm shadow-black/5">
+              <TabsTrigger value="overview" className="rounded-full px-4">
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="profile" className="rounded-full px-4">
+                Profile Settings
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-8">
+              <section
+                className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+                aria-label="Manager overview stats"
+              >
+                <StatCard
+                  label="Active Quests"
+                  value={String(activeQuestCount)}
+                  subtext="Currently open for submissions"
+                />
+                <StatCard
+                  label="Closed Quests"
+                  value={String(closedQuestCount)}
+                  subtext="Completed or archived postings"
+                />
+                <StatCard
+                  label="Total Submissions"
+                  value={String(allSubmissions.length)}
+                  subtext={`${reviewingCount} currently under review`}
+                />
+                <StatCard
+                  label="Reward Budget"
+                  value={`${totalRewardBudget.toLocaleString()} KRW`}
+                  subtext={isLoading ? 'Refreshing from the backend' : 'Combined reward amount across posted quests'}
+                  accent
+                />
+              </section>
+
+              <section className="grid gap-6 xl:grid-cols-3">
+                <div id="posted-quests" className="xl:col-span-2">
+                  <PostedQuestsSection quests={dbQuests} />
+                </div>
+
+                <div className="space-y-6">
+                  <Card className="border border-border shadow-none">
+                    <div className="p-6">
+                      <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-foreground">
+                          Quest Timeline
+                        </h2>
+                        <p className="mt-1 text-sm text-foreground-muted">
+                          Keep an eye on publishing cadence and upcoming review windows.
+                        </p>
+                      </div>
+                      <Calendar quests={dbQuests} className="w-full" />
+                    </div>
+                  </Card>
+
+                  <div id="reward-management">
+                    <RewardSection />
+                  </div>
+                </div>
+              </section>
+
+              <section id="submission-review">
+                <SubmissionsReviewSection submissions={allSubmissions} />
+              </section>
+            </TabsContent>
+
+            <TabsContent value="profile">
+              <section id="profile-settings">
+                {userId ? (
+                  <ManagerProfileForm userId={userId} />
+                ) : (
+                  <Card className="border border-dashed border-border p-10 text-center text-muted-foreground shadow-none">
+                    Loading manager profile information...
+                  </Card>
+                )}
+              </section>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </DashboardShell>
     </div>
   )
 }

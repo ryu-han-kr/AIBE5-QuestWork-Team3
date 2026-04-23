@@ -1,17 +1,18 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 interface Quest {
-  id: string
+  id: number
   title: string
-  status: 'open' | 'closed' | 'completed'
-  reward: string
-  submissionsCount: number
+  status: 'OPEN' | 'CLOSED' | 'COMPLETED'
+  rewardAmount: number
   createdAt: string
+  submissionsCount?: number
 }
 
 interface PostedQuestsSectionProps {
@@ -19,49 +20,59 @@ interface PostedQuestsSectionProps {
 }
 
 const statusBadgeColor = {
-  open: 'bg-quest-open text-white',
-  closed: 'bg-quest-closed text-white',
-  completed: 'bg-quest-reviewing text-white',
+  OPEN: 'bg-green-100 text-green-700',
+  CLOSED: 'bg-slate-100 text-slate-700',
+  COMPLETED: 'bg-primary-light text-primary',
 }
 
 const statusLabel = {
-  open: '진행 중',
-  closed: '마감됨',
-  completed: '완료',
+  OPEN: 'Open',
+  CLOSED: 'Closed',
+  COMPLETED: 'Completed',
 }
 
 export function PostedQuestsSection({ quests }: PostedQuestsSectionProps) {
+  const router = useRouter()
+
   return (
-    <Card className="border border-border">
-      <div className="border-b border-border p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">등록된 퀘스트</h2>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary-hover">
-            + 새 퀘스트
+    <Card className="border border-border shadow-none">
+      <div className="p-6">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Posted Quests</h2>
+            <p className="mt-1 text-sm text-foreground-muted">
+              Review active postings, monitor status, and jump into quest details.
+            </p>
+          </div>
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary-hover"
+            onClick={() => router.push('/manager/create-quest')}
+          >
+            Create Quest
           </Button>
         </div>
-      </div>
 
-      <div className="divide-y divide-border">
         {quests.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-foreground-muted">등록된 퀘스트가 없습니다.</p>
+          <div className="rounded-lg border border-dashed border-border p-8 text-center">
+            <p className="text-sm text-foreground-muted">
+              No quests have been posted yet.
+            </p>
           </div>
         ) : (
-          quests.map((quest) => (
-            <Link
-              key={quest.id}
-              href={`/manager/quests/${quest.id}`}
-              className="block transition-colors hover:bg-surface-raised"
-            >
-              <div className="p-6">
+          <div className="space-y-3">
+            {quests.map((quest) => (
+              <Link
+                key={quest.id}
+                href={`/manager/quests/${quest.id}`}
+                className="block rounded-lg border border-border p-4 transition-colors hover:bg-surface"
+              >
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground hover:text-primary truncate">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-sm font-semibold text-foreground">
                       {quest.title}
                     </h3>
-                    <p className="mt-1 text-sm text-foreground-muted">
-                      생성일: {quest.createdAt}
+                    <p className="mt-2 text-xs text-foreground-muted">
+                      Created on {new Date(quest.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <Badge className={statusBadgeColor[quest.status]}>
@@ -69,26 +80,28 @@ export function PostedQuestsSection({ quests }: PostedQuestsSectionProps) {
                   </Badge>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-6">
                     <div>
-                      <p className="text-xs text-foreground-muted">보상</p>
-                      <p className="font-semibold text-primary">{quest.reward}</p>
+                      <p className="text-xs text-foreground-muted">Reward</p>
+                      <p className="text-sm font-semibold text-primary">
+                        {quest.rewardAmount?.toLocaleString()} KRW
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs text-foreground-muted">제출</p>
-                      <p className="font-semibold text-foreground">
-                        {quest.submissionsCount}건
+                      <p className="text-xs text-foreground-muted">Submissions</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {quest.submissionsCount || 0}
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" className="text-xs">
-                    상세 보기
+                  <Button variant="outline" size="sm" className="shrink-0">
+                    View Details
                   </Button>
                 </div>
-              </div>
-            </Link>
-          ))
+              </Link>
+            ))}
+          </div>
         )}
       </div>
     </Card>

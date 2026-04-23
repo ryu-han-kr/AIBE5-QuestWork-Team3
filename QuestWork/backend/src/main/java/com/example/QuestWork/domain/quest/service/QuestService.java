@@ -67,12 +67,16 @@ public class QuestService {
     }
 
     //작성자별 퀘스트 조회
-    public List<QuestResponseDto> getQuestByManager(Long managerId) {
-        ManagerProfileEntity manager = managerProfileRepository.findByUserId(managerId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 매니저를 찾지 못했습니다. userId=" + managerId));
+    public List<QuestResponseDto> getQuestByManager(Long userId) {
+        // 1. 유저 ID로 매니저 프로필 찾기
+        ManagerProfileEntity managerProfile = managerProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("매니저 프로필 없음: " + userId));
 
-        return questRepository.findByManagerId(manager)
-                .stream().map(quest -> QuestResponseDto.from(quest, objectMapper)).toList();
+        // 2. 💡 새로 만든 findByManagerId_Id 메소드 사용 (Long 타입 전달)
+        return questRepository.findByManagerId_Id(managerProfile.getId())
+                .stream()
+                .map(quest -> QuestResponseDto.from(quest, objectMapper))
+                .toList();
     }
     //퀘스트 수정
     @Transactional
@@ -116,5 +120,10 @@ public class QuestService {
             throw new IllegalArgumentException("해당 퀘스트에 대한 수정 권한이 없습니다");
         }
     }
+
+    /**
+     * 매니저별 퀘스트 조회 (현재 로그인한 유저 ID 기준)
+     * 💡 컨트롤러의 /api/quests/manager/{userId} 와 연결됩니다.
+     */
 
 }

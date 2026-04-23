@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { GlobalNav } from '@/components/global-nav'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { GlobalNav } from "@/components/global-nav";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export default function ProfileSettingsPage() {
   return (
@@ -169,5 +169,5 @@ export default function ProfileSettingsPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
 package com.example.QuestWork.domain.member.controller;
 
+import com.example.QuestWork.domain.member.dto.MemberPasswordUpdateDto;
 import com.example.QuestWork.domain.member.dto.MemberProfileDto;
-
-
 import com.example.QuestWork.domain.member.dto.MemberUpdateDto;
+
 import com.example.QuestWork.domain.member.service.MemberProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +21,28 @@ public class MemberProfileController {
      */
     @GetMapping("/{username}")
     public ResponseEntity<MemberProfileDto> getProfile(@PathVariable String username) {
-        MemberProfileDto profile = memberProfileService.getProfile(username);
-        return ResponseEntity.ok(profile);
+        return ResponseEntity.ok(memberProfileService.getProfileByUsername(username));
     }
+
+    /**
+     * 프로필 일반 정보 수정 (닉네임, 소개글 등)
+     */
     @PutMapping("/{username}")
-    public ResponseEntity<String> updateProfile(
-            @PathVariable("username") String username,
-            @RequestBody MemberUpdateDto updateDto) { // JSON 데이터를 DTO로 자동 변환
+    public ResponseEntity<String> updateProfile(@PathVariable String username, @RequestBody MemberUpdateDto dto) {
+        memberProfileService.updateProfileByUsername(username, dto);
+        return ResponseEntity.ok("수정 완료");
+    }
 
-        memberProfileService.updateProfile(username, updateDto);
+    /**
+     * 비밀번호 수정 (보안 강화)
+     */
+    @PatchMapping("/{username}/password") // 💡 경로 중복 제거!
+    public ResponseEntity<?> updatePassword(
+            @PathVariable String username,
+            @RequestBody MemberPasswordUpdateDto dto) {
 
-        return ResponseEntity.ok("프로필 수정이 완료되었습니다.");
+        // 💡 주입받은 memberProfileService를 사용하도록 수정
+        memberProfileService.updatePassword(username, dto);
+        return ResponseEntity.ok("비밀번호 변경 완료");
     }
 }

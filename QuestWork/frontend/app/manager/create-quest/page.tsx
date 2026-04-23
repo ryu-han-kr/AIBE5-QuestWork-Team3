@@ -1,48 +1,48 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { GlobalNav } from '@/components/global-nav'
-import { ManagerSidebar } from '@/components/manager/manager-sidebar'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState } from "react";
+import Link from "next/link";
+import { GlobalNav } from "@/components/global-nav";
+import { ManagerSidebar } from "@/components/manager/manager-sidebar";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const TECH_STACK_OPTIONS = [
-  'React',
-  'Next.js',
-  'Java',
-  'Spring',
-  'Node.js',
-  'Python',
-]
+  "React",
+  "Next.js",
+  "Java",
+  "Spring",
+  "Node.js",
+  "Python",
+];
 
-const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
+const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced"];
 
 const SUBMISSION_FORMAT_OPTIONS = [
-  { id: 'github', label: 'GitHub Repository' },
-  { id: 'file', label: 'File Upload' },
-]
+  { id: "github", label: "GitHub Repository" },
+  { id: "file", label: "File Upload" },
+];
 
 export default function CreateQuestPage() {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     techStack: [] as string[],
-    reward: '',
-    deadline: '',
-    difficulty: '',
+    reward: "",
+    deadline: "",
+    difficulty: "",
     submissionFormats: [] as string[],
-  })
+  });
 
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleTechStackChange = (tech: string) => {
     setFormData((prev) => ({
@@ -50,12 +50,12 @@ export default function CreateQuestPage() {
       techStack: prev.techStack.includes(tech)
         ? prev.techStack.filter((t) => t !== tech)
         : [...prev.techStack, tech],
-    }))
-  }
+    }));
+  };
 
   const handleDifficultyChange = (difficulty: string) => {
-    setFormData((prev) => ({ ...prev, difficulty }))
-  }
+    setFormData((prev) => ({ ...prev, difficulty }));
+  };
 
   const handleSubmissionFormatChange = (format: string) => {
     setFormData((prev) => ({
@@ -63,15 +63,57 @@ export default function CreateQuestPage() {
       submissionFormats: prev.submissionFormats.includes(format)
         ? prev.submissionFormats.filter((f) => f !== format)
         : [...prev.submissionFormats, format],
-    }))
-  }
+    }));
+  };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log('[v0] Quest creation form submitted:', formData)
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
-  }
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const managerId = Number(localStorage.getItem("userId"));
+    if (!managerId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const requestBody = {
+      managerId,
+      title: formData.title,
+      rewardAmount: Number(formData.reward),
+      deadline: formData.deadline + "T00:00:00",
+      formData: {
+        description: formData.description,
+        techStack: formData.techStack,
+        difficulty: formData.difficulty,
+        submissionFormats: formData.submissionFormats,
+      },
+    };
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/quests?managerId=${managerId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Quest created:", data);
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 3000);
+      } else {
+        const error = await response.json();
+        alert(
+          `퀘스트 생성 실패: ${error.message || "서버 오류가 발생했습니다"}`,
+        );
+      }
+    } catch (error) {
+      console.error("퀘스트 생성 중 오류:", error);
+      alert("서버 연결에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,8 +195,8 @@ export default function CreateQuestPage() {
                       onClick={() => handleTechStackChange(tech)}
                       className={`rounded-md px-3 py-2 text-sm font-medium transition-all ${
                         formData.techStack.includes(tech)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'border border-border bg-surface text-foreground hover:border-primary hover:text-primary'
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border bg-surface text-foreground hover:border-primary hover:text-primary"
                       }`}
                     >
                       {tech}
@@ -217,8 +259,8 @@ export default function CreateQuestPage() {
                       onClick={() => handleDifficultyChange(difficulty)}
                       className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
                         formData.difficulty === difficulty
-                          ? 'bg-primary text-primary-foreground'
-                          : 'border border-border bg-surface text-foreground hover:border-primary hover:text-primary'
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border bg-surface text-foreground hover:border-primary hover:text-primary"
                       }`}
                     >
                       {difficulty}
@@ -242,9 +284,7 @@ export default function CreateQuestPage() {
                       <input
                         type="checkbox"
                         checked={formData.submissionFormats.includes(format.id)}
-                        onChange={() =>
-                          handleSubmissionFormatChange(format.id)
-                        }
+                        onChange={() => handleSubmissionFormatChange(format.id)}
                         className="h-4 w-4 cursor-pointer rounded border-border text-primary"
                       />
                       <span className="cursor-pointer text-sm font-medium text-foreground">
@@ -283,5 +323,5 @@ export default function CreateQuestPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }
