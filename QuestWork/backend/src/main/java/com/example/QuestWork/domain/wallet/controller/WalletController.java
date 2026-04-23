@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/settlement")
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class WalletController {
         walletService.processSettlement(
                 request.getFreelancerId(),
                 request.getQuestId(),
-                request.getOriginalAmount()
+                BigDecimal.valueOf(request.getOriginalAmount())
         );
         return ResponseEntity.ok("정산 처리가 성공적으로 완료되었습니다.");
     }
@@ -37,7 +39,7 @@ public class WalletController {
     @GetMapping("/wallet/{userId}")
     public ResponseEntity<WalletResponse> getWallet(@PathVariable Long userId) {
         // 💡 서비스에서 실제 DB 잔액을 가져옵니다.
-        Long balance = walletService.getBalance(userId);
+        BigDecimal balance = walletService.getBalance(userId);
 
         // 💡 조회 결과를 응답용 DTO에 담아서 반환합니다.
         return ResponseEntity.ok(new WalletResponse(userId, balance));

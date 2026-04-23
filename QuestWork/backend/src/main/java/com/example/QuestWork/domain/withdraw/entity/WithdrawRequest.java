@@ -3,6 +3,7 @@ package com.example.QuestWork.domain.withdraw.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +23,7 @@ public class WithdrawRequest {
     private Long memberId;
 
     @Column(nullable = false)
-    private Long amount;
+    private BigDecimal amount;
 
     @Column(name = "bank_name", length = 50, nullable = false)
     private String bankName;

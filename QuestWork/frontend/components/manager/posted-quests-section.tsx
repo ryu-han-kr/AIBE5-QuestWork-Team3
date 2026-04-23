@@ -61,7 +61,7 @@ export function PostedQuestsSection({ quests }: PostedQuestsSectionProps) {
               quests.map((quest) => (
                   <Link
                       key={quest.id}
-                      href={`/manager/quests/${quest.id}`}
+                      href={`/quests/${quest.id}`}
                       className="block transition-colors hover:bg-muted/50"
                   >
                     <div className="p-6">

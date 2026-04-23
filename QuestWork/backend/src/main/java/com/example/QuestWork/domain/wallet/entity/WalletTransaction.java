@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,7 +21,7 @@ public class WalletTransaction {
     @JoinColumn(name = "wallet_id", nullable = false)
     private WalletEntity wallet;
 
-    private Long amount;
+    private BigDecimal amount;
     private String type;
     private String status;
     private Long referenceId;
@@ -27,7 +29,7 @@ public class WalletTransaction {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder
-    public WalletTransaction(WalletEntity wallet, Long amount, String type, String status, Long referenceId, String description) {
+    public WalletTransaction(WalletEntity wallet, BigDecimal amount, String type, String status, Long referenceId, String description) {
         this.wallet = wallet; // 💡 빌더에서도 객체를 받도록 수정
         this.amount = amount;
         this.type = type;
