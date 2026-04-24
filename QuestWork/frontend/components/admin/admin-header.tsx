@@ -22,13 +22,19 @@ export function AdminHeader() {
             회원 관리
           </Link>
           <Link
+            href="/admin/settlement-management"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            정산 관리
+          </Link>
+          <Link
             href="#"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             퀘스트 관리
           </Link>
           <Link
-            href="#"
+            href="/admin/statistics"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             통계

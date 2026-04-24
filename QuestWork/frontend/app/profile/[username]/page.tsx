@@ -228,7 +228,7 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
     today.setHours(0, 0, 0, 0)
 
     const futureQuests = MOCK_QUESTS.filter(quest => new Date(quest.deadline) >= today)
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+        .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
 
     if (futureQuests.length === 0) return null
 
@@ -353,11 +353,11 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                     onClick={() => isEditing && fileInputRef.current?.click()}
                 />
                 <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  hidden
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    hidden
                 />
                 {isEditing && (
                     <div className="absolute inset-x-2 bottom-2">
@@ -486,22 +486,22 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                       <Label className="mb-4 block">기술 스택 선택</Label>
                       <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto">
                         {TECH_STACK_OPTIONS.map((tech) => (
-                          <div key={tech} className="flex items-center gap-3 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={draft?.techStack.includes(tech) || false}
-                              onChange={(e) => {
-                                setDraft(prev => prev ? {
-                                  ...prev,
-                                  techStack: e.target.checked
-                                    ? [...prev.techStack, tech]
-                                    : prev.techStack.filter(t => t !== tech)
-                                } : null)
-                              }}
-                              className="rounded"
-                            />
-                            <span className="text-sm">{tech}</span>
-                          </div>
+                            <div key={tech} className="flex items-center gap-3 cursor-pointer">
+                              <input
+                                  type="checkbox"
+                                  checked={draft?.techStack.includes(tech) || false}
+                                  onChange={(e) => {
+                                    setDraft(prev => prev ? {
+                                      ...prev,
+                                      techStack: e.target.checked
+                                          ? [...prev.techStack, tech]
+                                          : prev.techStack.filter(t => t !== tech)
+                                    } : null)
+                                  }}
+                                  className="rounded"
+                              />
+                              <span className="text-sm">{tech}</span>
+                            </div>
                         ))}
                       </div>
                     </Card>
@@ -530,26 +530,26 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                           데드라인 캘린더
                         </CardTitle>
                         {getNextDeadline() && (
-                          <p className="text-sm text-slate-500 mt-1">
-                            다음 데드라인: {getNextDeadline()?.title} ({getNextDeadline()?.days})
-                          </p>
+                            <p className="text-sm text-slate-500 mt-1">
+                              다음 데드라인: {getNextDeadline()?.title} ({getNextDeadline()?.days})
+                            </p>
                         )}
                       </CardHeader>
                       <CardContent className="p-0">
                         <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) => {
-                            setSelectedDate(date)
-                            setIsDialogOpen(true)
-                          }}
-                          modifiers={{
-                            deadline: MOCK_QUESTS.map(q => new Date(q.deadline))
-                          }}
-                          modifiersClassNames={{
-                            deadline: "bg-purple-200 text-purple-800 font-semibold"
-                          }}
-                          className="rounded-md border-0 w-full text-sm"
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => {
+                              setSelectedDate(date)
+                              setIsDialogOpen(true)
+                            }}
+                            modifiers={{
+                              deadline: MOCK_QUESTS.map(q => new Date(q.deadline))
+                            }}
+                            modifiersClassNames={{
+                              deadline: "bg-purple-200 text-purple-800 font-semibold"
+                            }}
+                            className="rounded-md border-0 w-full text-sm"
                         />
                       </CardContent>
                     </Card>
@@ -557,15 +557,15 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                   <div className="lg:col-span-1">
                     <div className="mb-4 flex gap-3">
                       {(['전체', '진행중', '찜'] as const).map((filter) => (
-                        <Button
-                          key={filter}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setQuestFilter(filter)}
-                          className="rounded-full px-4 py-2 border-purple-300 text-purple-600 hover:bg-purple-50 transition-all duration-200"
-                        >
-                          {filter}
-                        </Button>
+                          <Button
+                              key={filter}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setQuestFilter(filter)}
+                              className="rounded-full px-4 py-2 border-purple-300 text-purple-600 hover:bg-purple-50 transition-all duration-200"
+                          >
+                            {filter}
+                          </Button>
                       ))}
                     </div>
                     <div className="space-y-6 max-h-96 overflow-y-auto">
@@ -575,22 +575,22 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                         const deadlineDate = new Date(quest.deadline)
                         const daysDiff = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24))
                         const dDisplay = daysDiff === 0 ? 'D-Day' : daysDiff > 0 ? `D-${daysDiff}` : `D+${Math.abs(daysDiff)}`
-                        
+
                         return (
-                          <Card key={quest.id} className="rounded-3xl p-8 hover:shadow-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-shadow duration-200 border-0">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <p className="font-semibold text-sm text-[#1e293b]">{quest.title}</p>
-                                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                  <CalendarIcon size={14} />
-                                  {quest.deadline} ({dDisplay})
-                                </p>
+                            <Card key={quest.id} className="rounded-3xl p-8 hover:shadow-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-shadow duration-200 border-0">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <p className="font-semibold text-sm text-[#1e293b]">{quest.title}</p>
+                                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                    <CalendarIcon size={14} />
+                                    {quest.deadline} ({dDisplay})
+                                  </p>
+                                </div>
+                                <Badge variant={quest.status === '진행중' ? 'default' : 'secondary'} className="ml-4 px-3 py-1 rounded-full bg-purple-100 text-purple-800 border-0">
+                                  {quest.status}
+                                </Badge>
                               </div>
-                              <Badge variant={quest.status === '진행중' ? 'default' : 'secondary'} className="ml-4 px-3 py-1 rounded-full bg-purple-100 text-purple-800 border-0">
-                                {quest.status}
-                              </Badge>
-                            </div>
-                          </Card>
+                            </Card>
                         )
                       })}
                     </div>
@@ -606,11 +606,11 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                       <div>
                         <Label htmlFor="quest-title">퀘스트 제목</Label>
                         <Input
-                          id="quest-title"
-                          value={newQuestTitle}
-                          onChange={(e) => setNewQuestTitle(e.target.value)}
-                          placeholder="퀘스트 제목을 입력하세요"
-                          className="rounded-xl"
+                            id="quest-title"
+                            value={newQuestTitle}
+                            onChange={(e) => setNewQuestTitle(e.target.value)}
+                            placeholder="퀘스트 제목을 입력하세요"
+                            className="rounded-xl"
                         />
                       </div>
                       <div>
@@ -674,68 +674,68 @@ export default function ProfilePage({ params: paramsPromise }: { params: Promise
                         출금 신청
                       </Button>
                     </DialogTrigger>
-                      <DialogContent className="sm:max-w-[520px] rounded-3xl">
-                        <DialogHeader>
-                          <DialogTitle>출금 신청</DialogTitle>
-                          <p className="text-sm text-slate-500 mt-2">은행 정보와 출금 금액을 입력하여 안전하게 요청하세요.</p>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label>은행</Label>
-                            <Select value={withdrawBank} onValueChange={setWithdrawBank}>
-                              <SelectTrigger className="rounded-xl">
-                                <SelectValue placeholder="은행 선택" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="국민">국민</SelectItem>
-                                <SelectItem value="신한">신한</SelectItem>
-                                <SelectItem value="우리">우리</SelectItem>
-                                <SelectItem value="농협">농협</SelectItem>
-                                <SelectItem value="하나">하나</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="grid gap-2">
-                            <Label>예금주</Label>
-                            <Input
+                    <DialogContent className="sm:max-w-[520px] rounded-3xl">
+                      <DialogHeader>
+                        <DialogTitle>출금 신청</DialogTitle>
+                        <p className="text-sm text-slate-500 mt-2">은행 정보와 출금 금액을 입력하여 안전하게 요청하세요.</p>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label>은행</Label>
+                          <Select value={withdrawBank} onValueChange={setWithdrawBank}>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue placeholder="은행 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="국민">국민</SelectItem>
+                              <SelectItem value="신한">신한</SelectItem>
+                              <SelectItem value="우리">우리</SelectItem>
+                              <SelectItem value="농협">농협</SelectItem>
+                              <SelectItem value="하나">하나</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>예금주</Label>
+                          <Input
                               value={withdrawHolder}
                               onChange={(e) => setWithdrawHolder(e.target.value)}
                               placeholder="예금주 이름 입력"
                               className="rounded-xl"
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label>계좌번호</Label>
-                            <Input
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>계좌번호</Label>
+                          <Input
                               value={withdrawAccount}
                               onChange={(e) => setWithdrawAccount(e.target.value)}
                               placeholder="123-456-789012"
                               className="rounded-xl"
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label>출금 금액</Label>
-                            <Input
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>출금 금액</Label>
+                          <Input
                               type="number"
                               value={withdrawAmount}
                               onChange={(e) => setWithdrawAmount(e.target.value)}
                               placeholder={walletLoading ? '잔액 로딩 중...' : `최대 ₩${walletBalance?.toLocaleString() || '0'}`}
                               className="rounded-xl"
-                            />
-                            <p className="text-sm text-slate-500">현재 잔액: {walletLoading ? '---' : `₩${walletBalance?.toLocaleString() || '0'}`}</p>
-                          </div>
-                          {withdrawError && <p className="text-sm text-red-600">{withdrawError}</p>}
+                          />
+                          <p className="text-sm text-slate-500">현재 잔액: {walletLoading ? '---' : `₩${walletBalance?.toLocaleString() || '0'}`}</p>
                         </div>
-                        <DialogFooter className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                          <Button variant="outline" onClick={() => setIsWithdrawOpen(false)} className="rounded-xl">
-                            닫기
-                          </Button>
-                          <Button onClick={handleWithdrawSubmit} disabled={withdrawSubmitting} className="rounded-xl bg-green-600 text-white hover:bg-green-700">
-                            {withdrawSubmitting ? '신청 중...' : '출금 신청'}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                        {withdrawError && <p className="text-sm text-red-600">{withdrawError}</p>}
+                      </div>
+                      <DialogFooter className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                        <Button variant="outline" onClick={() => setIsWithdrawOpen(false)} className="rounded-xl">
+                          닫기
+                        </Button>
+                        <Button onClick={handleWithdrawSubmit} disabled={withdrawSubmitting} className="rounded-xl bg-green-600 text-white hover:bg-green-700">
+                          {withdrawSubmitting ? '신청 중...' : '출금 신청'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </Card>
 
                 <div className="grid grid-cols-2 gap-4">
