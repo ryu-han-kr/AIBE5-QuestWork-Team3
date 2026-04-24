@@ -10,8 +10,6 @@ import com.example.QuestWork.domain.quest.entity.Quest;
 import com.example.QuestWork.domain.quest.repository.QuestRepository;
 import com.example.QuestWork.domain.manager.entity.ManagerProfileEntity;
 import com.example.QuestWork.domain.manager.repositroy.ManagerProfileRepository;
-import com.example.QuestWork.domain.user.entity.User;
-import com.example.QuestWork.domain.user.repository.UserRepository;
 import com.example.QuestWork.domain.wallet.entity.WalletEntity;
 import com.example.QuestWork.domain.wallet.repository.WalletRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +29,6 @@ import java.util.List;
 
 public class QuestService {
     private final QuestRepository questRepository;
-    private final UserRepository userRepository;
     private final ManagerProfileRepository managerProfileRepository;
     private final WalletRepository walletRepository;
     private final ObjectMapper objectMapper;
@@ -125,10 +122,10 @@ public class QuestService {
         quest.update(null, null, null, null, status);
         return QuestResponseDto.from(quest, objectMapper);
     }
-    //작성자 검증
-    public void validateQuestOwner(Quest quest, Long mangerId) {
-        if(!quest.getManagerId().getId().equals(mangerId)) {
-            throw new IllegalArgumentException("해당 퀘스트에 대한 수정 권환이 없습니다");
+    //작성자 검증 (managerId 파라미터는 users.id)
+    public void validateQuestOwner(Quest quest, Long managerId) {
+        if(!quest.getManagerId().getUser().getId().equals(managerId)) {
+            throw new IllegalArgumentException("해당 퀘스트에 대한 수정 권한이 없습니다");
         }
     }
 

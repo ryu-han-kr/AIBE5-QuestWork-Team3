@@ -116,9 +116,9 @@ export default function MySubmissionsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-        </Card>
+              </table>
+            </div>
+          </Card>
       </DashboardShell>
     </div>
   )
