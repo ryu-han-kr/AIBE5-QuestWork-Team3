@@ -19,12 +19,14 @@ const QUEST_CATEGORIES = [
   },
   {
     title: "소프트웨어 개발",
-    description: "제품 엔지니어링, 플랫폼 구축, 맞춤형 시스템 개발 퀘스트입니다.",
+    description:
+      "제품 엔지니어링, 플랫폼 구축, 맞춤형 시스템 개발 퀘스트입니다.",
     route: "/quests/software-development",
   },
   {
     title: "워드프레스 개발",
-    description: "테마 수정, 플러그인 개발, 사이트 유지보수 퀘스트를 만나보세요.",
+    description:
+      "테마 수정, 플러그인 개발, 사이트 유지보수 퀘스트를 만나보세요.",
     route: "/quests/wordpress-development",
   },
 ];
@@ -230,7 +232,7 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
                     </Avatar>
 
                     <p className="mt-3 text-base font-semibold text-foreground">
-                      {nickname}님, 다시 오셨네요
+                      {nickname}님, 반갑습니다.
                     </p>
 
                     <div className="mt-4 space-y-2">

@@ -1929,10 +1929,6 @@
     scroll-margin-block: calc(var(--spacing) * 1);
   }
 
-  .scroll-mt-24 {
-    scroll-margin-top: calc(var(--spacing) * 24);
-  }
-
   .scroll-py-1 {
     scroll-padding-block: calc(var(--spacing) * 1);
   }
