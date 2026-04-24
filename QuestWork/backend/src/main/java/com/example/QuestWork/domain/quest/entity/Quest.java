@@ -3,7 +3,6 @@ package com.example.QuestWork.domain.quest.entity;
 
 import com.example.QuestWork.domain.manager.entity.ManagerProfileEntity;
 import com.example.QuestWork.domain.quest.constant.QuestStatus;
-import com.example.QuestWork.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,8 +37,8 @@ public class Quest {
     @Column(name="form_data", columnDefinition = "json", nullable = false)
     private String formData;
 
-    @Column(name="reward_amount", nullable = false, precision = 12, scale = 2)
-    private BigDecimal rewardAmount;
+    @Column(precision = 12, scale = 2) // DB에도 decimal로 생성됨
+    private BigDecimal rewardAmount; // Long 대신 BigDecimal 사용
 
     @Column(nullable = false)
     private LocalDateTime deadline;
@@ -75,4 +74,8 @@ public class Quest {
         this.status = status;
     }
 
+    // 직접 만드시는 setStatus 메서드
+    public void setStatus(QuestStatus questStatus) {
+        this.status = questStatus;
+    }
 }
