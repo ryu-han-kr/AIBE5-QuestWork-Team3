@@ -32,6 +32,7 @@ export function LoginForm() {
         localStorage.setItem("nickname", data.nickname || "");
         localStorage.setItem("username", data.username || "");
         localStorage.setItem("userId", String(data.id));
+        localStorage.setItem("email", data.email || userId);
 
         const userRole =
           data.role === "ADMIN"

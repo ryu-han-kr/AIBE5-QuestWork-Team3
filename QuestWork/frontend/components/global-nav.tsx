@@ -100,6 +100,7 @@ export function GlobalNav({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const handleLogout = () => {
     localStorage.removeItem("username");
     localStorage.removeItem("nickname");
+    localStorage.removeItem("email");
     localStorage.removeItem("profileImage");
     localStorage.removeItem("avatar");
     localStorage.removeItem("role");

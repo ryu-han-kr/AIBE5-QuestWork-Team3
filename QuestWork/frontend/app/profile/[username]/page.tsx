@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -362,55 +361,6 @@ export default function ProfilePage({
       alert("저장에 실패했습니다. 서버 로그나 주소를 확인해주세요.");
     }
   };
-  // 비밀번호 변경 모달 상태
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [passwordDraft, setPasswordDraft] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
-
-  const handlePasswordChange = async () => {
-    // 1. 유효성 검사
-    if (passwordDraft.newPassword !== passwordDraft.confirmPassword) {
-      alert("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    setIsPasswordLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/user/${profile?.username}/password`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            currentPassword: passwordDraft.currentPassword,
-            newPassword: passwordDraft.newPassword,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const errorMsg = await response.text();
-        throw new Error(errorMsg || "비밀번호 수정 실패");
-      }
-
-      alert("비밀번호가 성공적으로 변경되었습니다.");
-      setIsPasswordModalOpen(false);
-      setPasswordDraft({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setIsPasswordLoading(false);
-    }
-  };
-
   if (isLoading)
     return (
       <div className="flex h-screen items-center justify-center font-bold text-xl">
@@ -530,95 +480,15 @@ export default function ProfilePage({
                       </Button>
                     </>
                   ) : (
-                    <>
-                      {/* 🔒 비밀번호 변경 모달 추가 */}
-                      <Dialog
-                        open={isPasswordModalOpen}
-                        onOpenChange={setIsPasswordModalOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="default"
-                            className="rounded-2xl px-6 text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm"
-                          >
-                            비밀번호 변경
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-106.25 rounded-2xl">
-                          <div className="grid gap-6 py-6">
-                            <div className="space-y-2">
-                              <Label>현재 비밀번호</Label>
-                              <Input
-                                type="password"
-                                value={passwordDraft.currentPassword}
-                                onChange={(e) =>
-                                  setPasswordDraft({
-                                    ...passwordDraft,
-                                    currentPassword: e.target.value,
-                                  })
-                                }
-                              />
-                            </div>
-                            <Separator />
-                            <div className="space-y-2">
-                              <Label>새 비밀번호</Label>
-                              <Input
-                                type="password"
-                                value={passwordDraft.newPassword}
-                                onChange={(e) =>
-                                  setPasswordDraft({
-                                    ...passwordDraft,
-                                    newPassword: e.target.value,
-                                  })
-                                }
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>새 비밀번호 확인</Label>
-                              <Input
-                                type="password"
-                                value={passwordDraft.confirmPassword}
-                                onChange={(e) =>
-                                  setPasswordDraft({
-                                    ...passwordDraft,
-                                    confirmPassword: e.target.value,
-                                  })
-                                }
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              variant="outline"
-                              onClick={() => setIsDialogOpen(false)}
-                              className="rounded-xl"
-                            >
-                              취소
-                            </Button>
-                            <Button
-                              onClick={handlePasswordChange}
-                              disabled={isPasswordLoading}
-                              className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
-                            >
-                              {isPasswordLoading
-                                ? "변경 중..."
-                                : "비밀번호 수정 완료"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Button
-                        variant="ghost"
-                        size="default"
-                        onClick={() => setIsEditing(true)}
-                        className="rounded-2xl px-6 text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm"
-                      >
-                        {" "}
-                        프로필 수정{" "}
-                      </Button>
-                    </>
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      onClick={() => setIsEditing(true)}
+                      className="rounded-2xl px-6 text-purple-600 hover:bg-purple-50 hover:text-purple-700 shadow-sm"
+                    >
+                      {" "}
+                      프로필 수정{" "}
+                    </Button>
                   )}
                 </div>
               </div>
