@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { AdminHeader } from "@/components/admin/admin-header" // 경로 프로젝트에 맞게 확인!
 import { TrendingUp, AlertCircle, RefreshCcw, Clock, Info, Calendar, Wallet, Lock } from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { apiFetch } from "@/lib/api-client"
 
 interface StatisticsData {
     todayFeeRevenue: number;
@@ -28,7 +29,7 @@ export default function StatisticsPage() {
     const fetchStatistics = async () => {
         setLoading(true)
         try {
-            const response = await fetch('http://localhost:8000/api/admin/stats/summary')
+            const response = await apiFetch('/api/admin/stats/summary')
             if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.')
             const result = await response.json()
             setData(result)

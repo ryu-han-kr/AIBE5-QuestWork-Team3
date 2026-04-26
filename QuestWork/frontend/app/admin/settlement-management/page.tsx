@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { WithdrawalTable, SettlementHistoryTable, type WithdrawalRequest, type SettlementRecord } from "@/components/admin/settlement-management-table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { apiFetch } from "@/lib/api-client"
 
 export type WalletTransactionRecord = {
   id: string
@@ -46,8 +47,8 @@ export default function SettlementManagementPage() {
       setLoading(true)
       try {
         const [withdrawalsResponse, settlementsResponse] = await Promise.all([
-          fetch("http://localhost:8000/api/admin/withdrawals"),
-          fetch("http://localhost:8000/api/admin/settlements"),
+          apiFetch("/api/admin/withdrawals"),
+          apiFetch("/api/admin/settlements"),
         ])
 
         if (!withdrawalsResponse.ok || !settlementsResponse.ok) {
@@ -106,7 +107,7 @@ export default function SettlementManagementPage() {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/withdrawals/${withdrawalId}/approve`, {
+      const response = await apiFetch(`/api/admin/withdrawals/${withdrawalId}/approve`, {
         method: "POST",
       })
 
@@ -138,9 +139,8 @@ export default function SettlementManagementPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/withdrawals/${withdrawalId}/reject`, {
+      const response = await apiFetch(`/api/admin/withdrawals/${withdrawalId}/reject`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reason)
       });
 
