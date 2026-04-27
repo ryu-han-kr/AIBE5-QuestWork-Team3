@@ -87,14 +87,519 @@ backend/src/main/java/com/example/QuestWork/
 ---
 
 ### 🖼️ Database Entire ERD
+````
+create table roles
+(
+id   bigint auto_increment
+primary key,
+name varchar(30) not null comment 'MEMBER, MANAGER, ADMIN',
+constraint name
+unique (name)
+);
 
-### 🖼️ Database Entire ERD
-[![ERD](https://raw.githubusercontent.com/ryu-han-kr/AIBE5-QuestWork-Team3/main/images/diagram.png)](https://github.com/ryu-han-kr/AIBE5-QuestWork-Team3/blob/main/images/diagram.png)
+create table skill_tags
+(
+id         bigint auto_increment
+primary key,
+name       varchar(100) not null,
+category   varchar(50)  not null comment 'BACKEND, FRONTEND, DB, INFRA, AI, ETC',
+created_at datetime     not null,
+constraint name
+unique (name)
+);
 
-> **Note**: 위 이미지를 클릭하면 깃허브 저장소 내의 원본 이미지 파일로 이동합니다.
+create table users
+(
+id                bigint auto_increment
+primary key,
+username          varchar(50)                  not null,
+password          varchar(255)                 null,
+email             varchar(100)                 not null,
+nickname          varchar(50)                  not null,
+profile_image_url varchar(255)                 null,
+provider          varchar(20)                  not null comment 'LOCAL, KAKAO, GOOGLE',
+provider_id       varchar(100)                 null,
+status            varchar(20) default 'ACTIVE' not null comment 'ACTIVE, INACTIVE, SUSPENDED',
+created_at        datetime                     not null,
+updated_at        datetime                     not null,
+constraint email
+unique (email),
+constraint username
+unique (username)
+);
 
----
+create table manager_profiles
+(
+id              bigint auto_increment
+primary key,
+user_id         bigint               not null,
+manager_type    varchar(20)          not null comment 'COMPANY, INDIVIDUAL',
+company_name    varchar(100)         null,
+business_number varchar(50)          null,
+manager_name    varchar(50)          null,
+contact_phone   varchar(30)          null,
+approved        tinyint(1) default 0 not null,
+constraint user_id
+unique (user_id),
+constraint manager_profiles_ibfk_1
+foreign key (user_id) references users (id)
+);
 
+create table member_profiles
+(
+id                 bigint auto_increment
+primary key,
+user_id            bigint                                                                    not null,
+portfolio_url      varchar(255)                                                              null,
+intro              text                                                                      null,
+level              enum ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND') default 'BRONZE' null,
+badge_count        int                                                      default 0        not null,
+total_reward       decimal(12, 2)                                           default 0.00     not null,
+total_career_years int                                                      default 0        not null,
+constraint user_id
+unique (user_id),
+constraint member_profiles_ibfk_1
+foreign key (user_id) references users (id)
+);
+
+create table member_profile_skills
+(
+member_profile_id bigint not null,
+skill_tag_id      bigint not null,
+constraint FK4sr8aijg948kc5o55lfwps0to
+foreign key (member_profile_id) references member_profiles (id),
+constraint FKsaboi0cm4j02b6caqp15psrfg
+foreign key (skill_tag_id) references skill_tags (id)
+);
+
+create table member_skill_tags
+(
+id                  bigint auto_increment
+primary key,
+member_id           bigint                         not null,
+skill_tag_id        bigint                         not null,
+level               varchar(30) default 'BEGINNER' not null comment 'BEGINNER, INTERMEDIATE, ADVANCED',
+years_of_experience int         default 0          not null,
+constraint member_skill_tags_index_5
+unique (member_id, skill_tag_id),
+constraint member_skill_tags_ibfk_1
+foreign key (member_id) references member_profiles (id),
+constraint member_skill_tags_ibfk_2
+foreign key (skill_tag_id) references skill_tags (id)
+);
+
+create index skill_tag_id
+on member_skill_tags (skill_tag_id);
+
+create table notifications
+(
+id         bigint auto_increment
+primary key,
+user_id    bigint               not null,
+type       varchar(50)          not null comment 'QUEST, PICK, COMMENT, SYSTEM',
+title      varchar(200)         not null,
+message    text                 not null,
+is_read    tinyint(1) default 0 not null,
+created_at datetime             not null,
+constraint notifications_ibfk_1
+foreign key (user_id) references users (id)
+);
+
+create index user_id
+on notifications (user_id);
+
+create table posts
+(
+id            bigint auto_increment
+primary key,
+member_id     bigint               not null,
+title         varchar(200)         not null,
+content       longtext             not null,
+thumbnail_url varchar(255)         null,
+view_count    int        default 0 not null,
+created_at    datetime             not null,
+updated_at    datetime             not null,
+deleted       tinyint(1) default 0 not null,
+constraint posts_ibfk_1
+foreign key (member_id) references member_profiles (id)
+);
+
+create table comments
+(
+id         bigint auto_increment
+primary key,
+post_id    bigint               not null,
+user_id    bigint               not null,
+content    text                 not null,
+created_at datetime             not null,
+updated_at datetime             not null,
+deleted    tinyint(1) default 0 not null,
+constraint comments_ibfk_1
+foreign key (post_id) references posts (id),
+constraint comments_ibfk_2
+foreign key (user_id) references users (id)
+);
+
+create index post_id
+on comments (post_id);
+
+create index user_id
+on comments (user_id);
+
+create table post_likes
+(
+id         bigint auto_increment
+primary key,
+post_id    bigint   not null,
+user_id    bigint   not null,
+created_at datetime not null,
+constraint post_likes_index_2
+unique (post_id, user_id),
+constraint post_likes_ibfk_1
+foreign key (post_id) references posts (id),
+constraint post_likes_ibfk_2
+foreign key (user_id) references users (id)
+);
+
+create index user_id
+on post_likes (user_id);
+
+create index member_id
+on posts (member_id);
+
+create table project_groups
+(
+id          bigint auto_increment
+primary key,
+manager_id  bigint       not null,
+name        varchar(100) not null,
+description text         null,
+created_at  datetime     not null,
+constraint project_groups_ibfk_1
+foreign key (manager_id) references manager_profiles (id)
+);
+
+create table project_group_members
+(
+id            bigint auto_increment
+primary key,
+group_id      bigint                       not null,
+member_id     bigint                       not null,
+joined_at     datetime                     not null,
+role_in_group varchar(30) default 'MEMBER' not null,
+constraint project_group_members_index_4
+unique (group_id, member_id),
+constraint project_group_members_ibfk_1
+foreign key (group_id) references project_groups (id),
+constraint project_group_members_ibfk_2
+foreign key (member_id) references member_profiles (id)
+);
+
+create index member_id
+on project_group_members (member_id);
+
+create index manager_id
+on project_groups (manager_id);
+
+create table quests
+(
+id            bigint auto_increment
+primary key,
+manager_id    bigint                     not null,
+title         varchar(200)               not null,
+form_data     json                       not null,
+reward_amount decimal(12, 2)             not null,
+deadline      datetime                   not null,
+status        varchar(30) default 'OPEN' not null comment 'OPEN, IN_PROGRESS, CLOSED, PICKED, CANCELED',
+created_at    datetime                   not null,
+updated_at    datetime                   not null,
+constraint fk_quest_manager
+foreign key (manager_id) references manager_profiles (id),
+constraint quests_ibfk_1
+foreign key (manager_id) references manager_profiles (id),
+constraint fk_quests_to_manager_profiles_final
+foreign key (manager_id) references manager_profiles (id)
+);
+
+create table disputes
+(
+id             bigint auto_increment
+primary key,
+quest_id       bigint                          not null,
+reporter_id    bigint                          not null,
+target_user_id bigint                          null,
+title          varchar(200)                    not null,
+content        text                            not null,
+status         varchar(30) default 'REQUESTED' not null,
+resolved_by    bigint                          null,
+created_at     datetime                        not null,
+resolved_at    datetime                        null,
+constraint disputes_ibfk_1
+foreign key (quest_id) references quests (id),
+constraint disputes_ibfk_2
+foreign key (reporter_id) references users (id),
+constraint disputes_ibfk_3
+foreign key (target_user_id) references users (id),
+constraint disputes_ibfk_4
+foreign key (resolved_by) references users (id)
+);
+
+create index quest_id
+on disputes (quest_id);
+
+create index reporter_id
+on disputes (reporter_id);
+
+create index resolved_by
+on disputes (resolved_by);
+
+create index target_user_id
+on disputes (target_user_id);
+
+create table escrows
+(
+id           bigint auto_increment
+primary key,
+quest_id     bigint                       not null,
+manager_id   bigint                       not null,
+amount       decimal(12, 2)               not null,
+status       varchar(30) default 'LOCKED' not null comment 'LOCKED, RELEASED, REFUNDED',
+deposited_at datetime                     not null,
+released_at  datetime                     null,
+constraint quest_id
+unique (quest_id),
+constraint escrows_ibfk_1
+foreign key (quest_id) references quests (id),
+constraint escrows_ibfk_2
+foreign key (manager_id) references manager_profiles (id)
+);
+
+create index manager_id
+on escrows (manager_id);
+
+create table payments
+(
+id         bigint auto_increment
+primary key,
+member_id  bigint                      not null,
+quest_id   bigint                      not null,
+amount     decimal(38, 2)              null,
+fee        decimal(38, 2)              null,
+net_amount decimal(38, 2)              null,
+status     varchar(30) default 'READY' not null,
+paid_at    datetime                    null,
+created_at datetime                    not null,
+constraint payments_ibfk_1
+foreign key (member_id) references member_profiles (id),
+constraint payments_ibfk_2
+foreign key (quest_id) references quests (id)
+);
+
+create index member_id
+on payments (member_id);
+
+create index quest_id
+on payments (quest_id);
+
+create table quest_applications
+(
+id         bigint auto_increment
+primary key,
+quest_id   bigint                        not null,
+member_id  bigint                        not null,
+applied_at datetime                      not null,
+status     varchar(30) default 'APPLIED' not null comment 'APPLIED, CANCELED',
+constraint quest_applications_index_1
+unique (quest_id, member_id),
+constraint uq_quest_application
+unique (quest_id, member_id),
+constraint quest_applications_ibfk_1
+foreign key (quest_id) references quests (id),
+constraint quest_applications_ibfk_2
+foreign key (member_id) references member_profiles (id),
+constraint FK1sn312wtvaqxb84xiivyfyo8d
+foreign key (member_id) references users (id)
+);
+
+create table quest_skill_tags
+(
+id             bigint auto_increment
+primary key,
+quest_id       bigint                         not null,
+skill_tag_id   bigint                         not null,
+required_level varchar(30) default 'BEGINNER' null comment 'BEGINNER, INTERMEDIATE, ADVANCED',
+is_required    tinyint(1)  default 1          not null,
+constraint quest_skill_tags_index_6
+unique (quest_id, skill_tag_id),
+constraint quest_skill_tags_ibfk_1
+foreign key (quest_id) references quests (id),
+constraint quest_skill_tags_ibfk_2
+foreign key (skill_tag_id) references skill_tags (id)
+);
+
+create index skill_tag_id
+on quest_skill_tags (skill_tag_id);
+
+create table quest_submissions
+(
+id                 bigint auto_increment
+primary key,
+quest_id           bigint                          not null,
+member_id          bigint                          not null,
+submission_title   varchar(200)                    not null,
+submission_content tinytext                        null,
+file_url           varchar(255)                    null,
+repo_url           varchar(255)                    null,
+version_no         int         default 1           not null,
+submitted_at       datetime                        not null,
+status             varchar(30) default 'SUBMITTED' not null comment 'SUBMITTED, UPDATED',
+updated_at         datetime(6)                     not null,
+constraint quest_submissions_ibfk_1
+foreign key (quest_id) references quests (id),
+constraint quest_submissions_ibfk_2
+foreign key (member_id) references member_profiles (id),
+constraint FKnahlkouvnnsulhm5nqyn080au
+foreign key (member_id) references users (id)
+);
+
+create index quest_id
+on quest_submissions (quest_id);
+
+create table quest_winners
+(
+id               bigint auto_increment
+primary key,
+quest_id         bigint               not null,
+submission_id    bigint               not null,
+member_id        bigint               not null,
+selected_at      datetime             not null,
+reward_confirmed tinyint(1) default 0 not null,
+constraint quest_id
+unique (quest_id),
+constraint quest_winners_ibfk_1
+foreign key (quest_id) references quests (id),
+constraint quest_winners_ibfk_2
+foreign key (submission_id) references quest_submissions (id),
+constraint quest_winners_ibfk_3
+foreign key (member_id) references member_profiles (id)
+);
+
+create index member_id
+on quest_winners (member_id);
+
+create index submission_id
+on quest_winners (submission_id);
+
+create table series
+(
+id          bigint auto_increment
+primary key,
+member_id   bigint       not null,
+title       varchar(200) not null,
+description text         null,
+created_at  datetime     not null,
+updated_at  datetime     not null,
+constraint series_ibfk_1
+foreign key (member_id) references member_profiles (id)
+);
+
+create index member_id
+on series (member_id);
+
+create table series_posts
+(
+id        bigint auto_increment
+primary key,
+series_id bigint        not null,
+post_id   bigint        not null,
+order_no  int default 1 not null,
+constraint series_posts_index_3
+unique (series_id, post_id),
+constraint series_posts_ibfk_1
+foreign key (series_id) references series (id),
+constraint series_posts_ibfk_2
+foreign key (post_id) references posts (id)
+);
+
+create index post_id
+on series_posts (post_id);
+
+create table user_roles
+(
+id        bigint auto_increment
+primary key,
+user_id   bigint       not null,
+role_id   bigint       not null,
+role_name varchar(255) null,
+constraint user_roles_index_0
+unique (user_id, role_id),
+constraint user_roles_ibfk_1
+foreign key (user_id) references users (id),
+constraint user_roles_ibfk_2
+foreign key (role_id) references roles (id)
+);
+
+create index role_id
+on user_roles (role_id);
+
+create table wallet
+(
+id      bigint auto_increment
+primary key,
+user_id bigint         not null,
+balance decimal(12, 2) not null,
+version bigint         null,
+constraint user_id
+unique (user_id)
+);
+
+create table wallet_entity
+(
+id      bigint auto_increment
+primary key,
+balance bigint not null,
+user_id bigint not null,
+version bigint null,
+constraint UK_kcwu9o6nt4rruppvedp985727
+unique (user_id)
+);
+
+create table wallet_transaction
+(
+id           bigint auto_increment
+primary key,
+amount       decimal(38, 2) null,
+created_at   datetime(6)    null,
+description  varchar(255)   null,
+reference_id bigint         null,
+status       varchar(255)   null,
+type         varchar(255)   null,
+wallet_id    bigint         not null,
+user_id      bigint         null,
+constraint FK6cnvafp3a0xhbs0eh9w26sett
+foreign key (wallet_id) references wallet (id)
+);
+
+create table withdraw_requests
+(
+id             bigint auto_increment
+primary key,
+member_id      bigint                          not null,
+amount         decimal(38, 2)                  not null,
+bank_name      varchar(50)                     not null,
+account_number varchar(100)                    not null,
+account_holder varchar(50)                     not null,
+status         varchar(30) default 'REQUESTED' not null,
+requested_at   datetime                        not null,
+processed_at   datetime                        null,
+constraint fk_withdraw_member
+foreign key (member_id) references users (id),
+constraint fk_withdraw_user_id
+foreign key (member_id) references users (id)
+);
+
+
+````
 ### 🛡️ Technical Challenges & Solutions
 
 #### 1. 정산 시스템의 데이터 무결성 보장
@@ -106,5 +611,5 @@ backend/src/main/java/com/example/QuestWork/
 - **문제**: 기능이 추가됨에 따라 Controller와 Service가 비대해져 유지보수가 어려워짐.
 - **해결**: 레이어드 아키텍처를 기반으로 하되, **도메인 단위(Quest, Wallet, Admin 등)**로 패키지를 분리하여 협업 효율성과 코드 가독성을 극대화함.
 
----
+
 
