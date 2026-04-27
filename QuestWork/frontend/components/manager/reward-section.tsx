@@ -11,6 +11,7 @@ export interface QuestRewardItem {
   rewardAmount: number
   winnerNickname: string
   winnerMemberId: number
+  winnerUserId: number
   submissionId: number
   submissionTitle: string
   githubUrl: string
@@ -34,15 +35,15 @@ function QuestRewardRow({
   const [error, setError] = useState<string | null>(null)
 
   const handleApprove = async () => {
-    const uid = userId ?? Number(localStorage.getItem('userId'))
     setApproving(true)
     setError(null)
     try {
       const res = await fetch('http://localhost:8000/api/settlement/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
-          freelancerId: item.winnerMemberId,
+          freelancerId: item.winnerUserId,  // userId 사용 (wallet은 userId 기준)
           questId: item.questId,
           originalAmount: item.rewardAmount,
         }),

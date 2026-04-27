@@ -55,5 +55,6 @@ public class Payment {
 
     public void markAsReleased() {
         this.status = "RELEASED";
+        this.paidAt = LocalDateTime.now(); // 정산 완료 시점으로 갱신 → 통계 당일 수익 반영
     }
 }

@@ -9,6 +9,7 @@ export interface ManagerSubmission {
   questTitle: string
   questId: string
   memberId: number
+  userId: number
   rewardAmount: number
   submittedAt: string
   status: 'reviewing' | 'winner' | 'rejected'
@@ -74,6 +75,7 @@ export function useManagerDashboardData() {
                 questTitle: quest.title,
                 questId: String(quest.questId),
                 memberId: sub.memberId,
+                userId: sub.userId,
                 rewardAmount: quest.rewardAmount,
                 submittedAt: sub.submittedAt?.split('T')[0] ?? '',
                 status: mapSubmissionStatus(sub.status),

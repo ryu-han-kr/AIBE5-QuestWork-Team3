@@ -131,8 +131,9 @@ public class WalletService {
             }
         });
 
-        // Payment RELEASED 처리 (통계 쿼리 정합성)
-        paymentRepository.findByQuestIdAndMemberId(questId, freelancerId).ifPresent(payment -> {
+        // Payment RELEASED 처리 + paidAt 갱신 (통계 당일 수익 반영)
+        // findByQuestId 사용: freelancerId(userId) ≠ memberId 불일치 방지
+        paymentRepository.findByQuestId(questId).ifPresent(payment -> {
             payment.markAsReleased();
             paymentRepository.save(payment);
         });

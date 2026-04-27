@@ -20,8 +20,9 @@ export default function ManagerRewardManagementPage() {
         rewardAmount: quest.rewardAmount,
         winnerNickname: winner.freelancerName,
         winnerMemberId: winner.memberId,
+        winnerUserId: winner.userId,
         submissionId: winner.submissionId,
-        submissionTitle: winner.freelancerName, // submissionTitle은 훅에서 추가 필요 시 확장
+        submissionTitle: winner.freelancerName,
         githubUrl: winner.githubUrl,
         rewardConfirmed: quest.status === 'FINISHED',
       } satisfies QuestRewardItem

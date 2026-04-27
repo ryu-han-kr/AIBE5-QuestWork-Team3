@@ -16,6 +16,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     Optional<Payment> findByQuestIdAndMemberId(Long questId, Long memberId);
 
+    // questId로만 payment 조회 (settlement 시 memberId-userId 불일치 방지)
+    Optional<Payment> findByQuestId(Long questId);
+
     @Query("SELECT SUM(p.fee) FROM Payment p WHERE p.paidAt BETWEEN :start AND :end")
     BigDecimal calculateTodayFee(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
