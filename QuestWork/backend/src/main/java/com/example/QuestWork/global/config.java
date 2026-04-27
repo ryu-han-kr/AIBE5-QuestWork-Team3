@@ -9,12 +9,12 @@ public class config implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 모든 경로에 대해
+        registry.addMapping("/**") // 紐⑤뱺 寃쎈줈?????
                 .allowedOrigins("http://localhost:3000")
                 .allowedHeaders("http://localhost:5173")
-                //.allowedOriginPatterns("*") // 혹시 몰라 넣어둔 편법, 모든 종류의 도메인을 다 ok 해줌
+                //.allowedOriginPatterns("*") // ?뱀떆 紐곕씪 ?ｌ뼱???몃쾿, 紐⑤뱺 醫낅쪟???꾨찓?몄쓣 ??ok ?댁쨲
                 .allowedMethods("GET", "POST", "PUT", "UPDATE", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("*") // 모든 종류의 http 헤더를 허용, Content-type, Authorization 등
-                .allowCredentials(true); // 모든 종류의 인증방식이든 사용할 수있게 해줌 JWT, session, cookies 등
+                .allowedHeaders("*") // 紐⑤뱺 醫낅쪟??http ?ㅻ뜑瑜??덉슜, Content-type, Authorization ??
+                .allowCredentials(true); // 紐⑤뱺 醫낅쪟???몄쬆諛⑹떇?대뱺 ?ъ슜???섏엳寃??댁쨲 JWT, session, cookies ??
     }
 }

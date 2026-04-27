@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState, type FormEvent } from "react";
 import { GlobalNav } from "@/components/global-nav";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,116 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
 export default function ProfileSettingsPage() {
+  const [accountEmail, setAccountEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState("");
+  const [passwordDraft, setPasswordDraft] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  useEffect(() => {
+    setAccountEmail(localStorage.getItem("email") || "");
+    setUsername(localStorage.getItem("username") || "");
+    setUserId(localStorage.getItem("userId") || "");
+  }, []);
+
+  const handlePasswordChange = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPasswordMessage(null);
+
+    if (!userId) {
+      setPasswordMessage({
+        type: "error",
+        text: "로그인 사용자 ID를 찾을 수 없습니다. 다시 로그인한 뒤 시도해주세요.",
+      });
+      return;
+    }
+
+    if (
+      !passwordDraft.currentPassword ||
+      !passwordDraft.newPassword ||
+      !passwordDraft.confirmPassword
+    ) {
+      setPasswordMessage({
+        type: "error",
+        text: "현재 비밀번호와 새 비밀번호를 모두 입력해주세요.",
+      });
+      return;
+    }
+
+    if (passwordDraft.newPassword !== passwordDraft.confirmPassword) {
+      setPasswordMessage({
+        type: "error",
+        text: "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.",
+      });
+      return;
+    }
+
+    setIsPasswordLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/user/${encodeURIComponent(userId)}/password`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            currentPassword: passwordDraft.currentPassword,
+            newPassword: passwordDraft.newPassword,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        const errorMsg = await response.text();
+
+        if (response.status === 400) {
+          throw new Error(errorMsg || "현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(
+            "비밀번호 변경 권한을 확인하지 못했습니다. 다시 로그인한 뒤 시도해주세요.",
+          );
+        }
+
+        if (response.status === 404) {
+          throw new Error(
+            "비밀번호를 변경할 사용자 정보를 찾지 못했습니다. 다시 로그인한 뒤 시도해주세요.",
+          );
+        }
+
+        throw new Error(errorMsg || "비밀번호 수정 실패");
+      }
+
+      setPasswordDraft({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordMessage({
+        type: "success",
+        text: "비밀번호가 성공적으로 변경되었습니다.",
+      });
+    } catch (error) {
+      setPasswordMessage({
+        type: "error",
+        text:
+          error instanceof Error
+            ? error.message
+            : "비밀번호 변경 중 오류가 발생했습니다.",
+      });
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <GlobalNav />
@@ -31,22 +142,20 @@ export default function ProfileSettingsPage() {
                   이메일
                 </h2>
                 <p className="mt-1 text-sm text-foreground-muted">
-                  계정 및 알림에 사용할 이메일 주소를 설정합니다.
+                  현재 로그인한 계정의 이메일 주소입니다.
                 </p>
               </div>
               <div className="space-y-4 p-6">
                 <div className="space-y-2">
-                  <Label htmlFor="email">이메일 주소</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    defaultValue="kim.dev@example.com"
-                    className="h-11 border-border bg-surface"
-                  />
+                  <Label id="account-email-label">계정 이메일</Label>
+                  <div
+                    role="text"
+                    aria-labelledby="account-email-label"
+                    className="flex min-h-11 items-center rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground"
+                  >
+                    {accountEmail || "이메일 정보가 없습니다."}
+                  </div>
                 </div>
-                <Button className="bg-primary text-primary-foreground hover:bg-primary-hover">
-                  이메일 저장
-                </Button>
               </div>
             </Card>
 
@@ -59,12 +168,23 @@ export default function ProfileSettingsPage() {
                   계정 보안을 위해 주기적으로 비밀번호를 변경해 주세요.
                 </p>
               </div>
-              <div className="grid gap-4 p-6 md:grid-cols-2">
+              <form
+                onSubmit={handlePasswordChange}
+                className="grid gap-4 p-6 md:grid-cols-2"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="current-password">현재 비밀번호</Label>
                   <Input
                     id="current-password"
                     type="password"
+                    value={passwordDraft.currentPassword}
+                    onChange={(event) =>
+                      setPasswordDraft((prev) => ({
+                        ...prev,
+                        currentPassword: event.target.value,
+                      }))
+                    }
+                    autoComplete="current-password"
                     className="h-11 border-border bg-surface"
                   />
                 </div>
@@ -73,6 +193,14 @@ export default function ProfileSettingsPage() {
                   <Input
                     id="new-password"
                     type="password"
+                    value={passwordDraft.newPassword}
+                    onChange={(event) =>
+                      setPasswordDraft((prev) => ({
+                        ...prev,
+                        newPassword: event.target.value,
+                      }))
+                    }
+                    autoComplete="new-password"
                     className="h-11 border-border bg-surface"
                   />
                 </div>
@@ -81,15 +209,38 @@ export default function ProfileSettingsPage() {
                   <Input
                     id="confirm-password"
                     type="password"
+                    value={passwordDraft.confirmPassword}
+                    onChange={(event) =>
+                      setPasswordDraft((prev) => ({
+                        ...prev,
+                        confirmPassword: event.target.value,
+                      }))
+                    }
+                    autoComplete="new-password"
                     className="h-11 border-border bg-surface"
                   />
                 </div>
+                {passwordMessage ? (
+                  <p
+                    className={`text-sm md:col-span-2 ${
+                      passwordMessage.type === "success"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {passwordMessage.text}
+                  </p>
+                ) : null}
                 <div className="md:col-span-2">
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary-hover">
-                    비밀번호 변경
+                  <Button
+                    type="submit"
+                    disabled={isPasswordLoading}
+                    className="bg-primary text-primary-foreground hover:bg-primary-hover"
+                  >
+                    {isPasswordLoading ? "변경 중..." : "비밀번호 변경"}
                   </Button>
                 </div>
-              </div>
+              </form>
             </Card>
 
             <Card className="border border-border">
