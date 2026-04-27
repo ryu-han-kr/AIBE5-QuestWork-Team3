@@ -88,7 +88,10 @@ backend/src/main/java/com/example/QuestWork/
 
 ### 🖼️ Database Entire ERD
 
-![ERD](./images/diagram.png)
+### 🖼️ Database Entire ERD
+[![ERD](https://raw.githubusercontent.com/ryu-han-kr/AIBE5-QuestWork-Team3/main/images/diagram.png)](https://github.com/ryu-han-kr/AIBE5-QuestWork-Team3/blob/main/images/diagram.png)
+
+> **Note**: 위 이미지를 클릭하면 깃허브 저장소 내의 원본 이미지 파일로 이동합니다.
 
 ---
 
