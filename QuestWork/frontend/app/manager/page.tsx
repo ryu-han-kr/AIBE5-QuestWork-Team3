@@ -1,142 +1,86 @@
 'use client'
 
-import { GlobalNav } from '@/components/global-nav'
-import { ManagerSidebar } from '@/components/manager/manager-sidebar'
+import { StatCard } from '@/components/dashboard/stat-card'
+import { ManagerWorkspaceShell } from '@/components/manager/manager-workspace-shell'
 import { PostedQuestsSection } from '@/components/manager/posted-quests-section'
-import { SubmissionsReviewSection } from '@/components/manager/submissions-review-section'
 import { RewardSection } from '@/components/manager/reward-section'
+import { useManagerDashboardData } from '@/components/manager/use-manager-dashboard-data'
+import { Calendar } from '@/components/ui/calendar'
 import { Card } from '@/components/ui/card'
 
 export default function ManagerDashboardPage() {
-  // Mock posted quests data
-  const postedQuests = [
-    {
-      id: '1',
-      title: 'React Admin Dashboard Performance Optimization',
-      status: 'open' as const,
-      reward: '₩1,000,000',
-      submissionsCount: 8,
-      createdAt: '2024-04-01',
-    },
-    {
-      id: '3',
-      title: 'REST API for Microservices Architecture',
-      status: 'open' as const,
-      reward: '₩1,500,000',
-      submissionsCount: 5,
-      createdAt: '2024-03-28',
-    },
-    {
-      id: '4',
-      title: 'Kubernetes Deployment & CI/CD Pipeline',
-      status: 'completed' as const,
-      reward: '₩2,000,000',
-      submissionsCount: 12,
-      createdAt: '2024-03-15',
-    },
-  ]
-
-  // Mock submissions data
-  const submissions = [
-    {
-      id: '1',
-      freelancerName: '김개발',
-      questTitle: 'React Admin Dashboard Performance Optimization',
-      questId: '1',
-      submittedAt: '2024-04-10',
-      status: 'reviewing' as const,
-      githubUrl: 'https://github.com/example/react-dashboard',
-    },
-    {
-      id: '2',
-      freelancerName: '박백엔드',
-      questTitle: 'REST API for Microservices Architecture',
-      questId: '3',
-      submittedAt: '2024-04-09',
-      status: 'reviewing' as const,
-      githubUrl: 'https://github.com/example/microservices-api',
-    },
-    {
-      id: '3',
-      freelancerName: '이풀스택',
-      questTitle: 'React Admin Dashboard Performance Optimization',
-      questId: '1',
-      submittedAt: '2024-04-08',
-      status: 'rejected' as const,
-      githubUrl: 'https://github.com/example/dashboard-v2',
-    },
-    {
-      id: '4',
-      freelancerName: '정데브옵스',
-      questTitle: 'Kubernetes Deployment & CI/CD Pipeline',
-      questId: '4',
-      submittedAt: '2024-04-05',
-      status: 'winner' as const,
-      githubUrl: 'https://github.com/example/k8s-setup',
-    },
-  ]
+  const {
+    dbQuests,
+    isLoading,
+    isAuthorized,
+    activeQuestCount,
+    closedQuestCount,
+    allSubmissions,
+    reviewingCount,
+    totalRewardBudget,
+  } = useManagerDashboardData()
 
   return (
-    <div className="min-h-screen bg-background">
-      <GlobalNav />
+    <ManagerWorkspaceShell
+      eyebrow="Manager Dashboard"
+      title="매니저 대시보드"
+      description="등록한 퀘스트 현황과 제출 검토 진행 상황, 보상 예산까지 한눈에 확인해보세요."
+      isAuthorized={isAuthorized}
+    >
+      <section
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        aria-label="매니저 대시보드 요약"
+      >
+        <StatCard
+          label="진행 중인 퀘스트"
+          value={String(activeQuestCount)}
+          subtext="현재 지원 및 제출을 받고 있는 퀘스트"
+        />
+        <StatCard
+          label="종료된 퀘스트"
+          value={String(closedQuestCount)}
+          subtext="마감되었거나 정리된 퀘스트"
+        />
+        <StatCard
+          label="총 제출 수"
+          value={String(allSubmissions.length)}
+          subtext={`현재 ${reviewingCount}건 검토 중`}
+        />
+        <StatCard
+          label="총 보상 금액"
+          value={`${totalRewardBudget.toLocaleString()} KRW`}
+          subtext={
+            isLoading
+              ? '최신 데이터를 불러오는 중입니다.'
+              : '등록한 퀘스트의 보상 금액 합계'
+          }
+          accent
+        />
+      </section>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <ManagerSidebar />
+      <section className="grid gap-6 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <PostedQuestsSection quests={dbQuests.slice(0, 5)} />
+        </div>
 
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="space-y-6 p-6 lg:p-8">
-            {/* Header */}
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                매니저 대시보드
-              </h1>
-              <p className="mt-1 text-foreground-muted">
-                등록한 퀘스트와 제출 현황을 관리하세요.
-              </p>
-            </div>
-
-            {/* Overview Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="border border-border p-5">
-                <p className="text-sm text-foreground-muted">활성 퀘스트</p>
-                <p className="mt-2 text-3xl font-bold text-foreground">
-                  {postedQuests.filter((q) => q.status === 'open').length}
+        <div className="space-y-6">
+          <Card className="border border-border shadow-none">
+            <div className="p-6">
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-foreground">
+                  퀘스트 일정
+                </h2>
+                <p className="mt-1 text-sm text-foreground-muted">
+                  등록 일정과 마감 시점을 빠르게 확인해보세요.
                 </p>
-              </Card>
-              <Card className="border border-border p-5">
-                <p className="text-sm text-foreground-muted">총 제출</p>
-                <p className="mt-2 text-3xl font-bold text-foreground">
-                  {submissions.length}
-                </p>
-              </Card>
-              <Card className="border border-border p-5 bg-primary">
-                <p className="text-sm text-primary-foreground/80">총 지급액</p>
-                <p className="mt-2 text-3xl font-bold text-primary-foreground">
-                  ₩4,500,000
-                </p>
-              </Card>
-            </div>
-
-            {/* Main Sections Grid */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Left Column */}
-              <div className="space-y-6">
-                <PostedQuestsSection quests={postedQuests} />
               </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                <RewardSection />
-              </div>
+              <Calendar quests={dbQuests} className="w-full" />
             </div>
+          </Card>
 
-            {/* Submissions Review Section */}
-            <SubmissionsReviewSection submissions={submissions} />
-          </div>
-        </main>
-      </div>
-    </div>
+          <RewardSection />
+        </div>
+      </section>
+    </ManagerWorkspaceShell>
   )
 }

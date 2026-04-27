@@ -1,141 +1,280 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { GlobalNav } from '@/components/global-nav'
-import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
-import { ActiveQuestsSection } from '@/components/dashboard/active-quests-section'
-import { SubmissionsSection } from '@/components/dashboard/submissions-section'
-import { EarningsSection } from '@/components/dashboard/earnings-section'
-import { PortfolioBlogSection } from '@/components/dashboard/portfolio-blog-section'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { StatCard } from '@/components/dashboard/stat-card'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  getStoredAppliedQuests,
+  type StoredAppliedQuest,
+} from '@/lib/applied-quests'
+import {
+  formatSubmissionStatus,
+  getStoredSubmissions,
+  type StoredSubmission,
+} from '@/lib/quest-submissions'
+
+const OVERVIEW_STATS = [
+  {
+    label: '진행 중인 퀘스트',
+    value: '3개',
+    subtext: '이번 주 마감 2개',
+  },
+  {
+    label: '완료한 퀘스트',
+    value: '5개',
+    subtext: '지난달보다 2개 증가',
+  },
+  {
+    label: '제출한 결과물',
+    value: '8건',
+    subtext: '현재 3건 검토 중',
+  },
+  {
+    label: '총 수익',
+    value: '₩1,250,000',
+    subtext: '정산 대기 ₩300,000',
+    accent: true,
+  },
+  {
+    label: '블로그 글',
+    value: '4개',
+    subtext: '임시 저장 1개 포함',
+  },
+]
+
+const RECENT_EARNINGS = [
+  {
+    id: '1',
+    title: 'React Admin Dashboard',
+    amount: '₩500,000',
+    date: '2024-04-12',
+  },
+  {
+    id: '2',
+    title: 'Mobile App Task Flow',
+    amount: '₩300,000',
+    date: '2024-04-09',
+  },
+]
 
 export default function DashboardPage() {
-  // Mock active quests data
-  const activeQuests = [
-    {
-      id: '1',
-      title: 'React Admin Dashboard Performance Optimization',
-      reward: '₩1,000,000',
-      deadline: '5일 남음',
-      progress: 60,
-    },
-    {
-      id: '3',
-      title: 'REST API for Microservices Architecture',
-      reward: '₩1,500,000',
-      deadline: '3일 남음',
-      progress: 45,
-    },
-  ]
+  const [appliedQuests, setAppliedQuests] = useState<StoredAppliedQuest[]>([])
+  const [submissions, setSubmissions] = useState<StoredSubmission[]>([])
 
-  // Mock submissions data
-  const submissions = [
-    {
-      id: '1',
-      questTitle: 'React Admin Dashboard Performance Optimization',
-      questId: '1',
-      status: 'submitted' as const,
-      submittedAt: '2024-04-10',
-      reward: '₩1,000,000',
-    },
-    {
-      id: '2',
-      questTitle: 'Mobile App for Task Management',
-      questId: '2',
-      status: 'selected' as const,
-      submittedAt: '2024-04-08',
-      reward: '₩800,000',
-    },
-    {
-      id: '3',
-      questTitle: 'REST API for Microservices Architecture',
-      questId: '3',
-      status: 'submitted' as const,
-      submittedAt: '2024-04-09',
-      reward: '₩1,500,000',
-    },
-    {
-      id: '4',
-      questTitle: 'Spring Boot REST Service',
-      questId: '4',
-      status: 'selected' as const,
-      submittedAt: '2024-04-05',
-      reward: '₩1,200,000',
-    },
-    {
-      id: '5',
-      questTitle: 'Python Data Processing Pipeline',
-      questId: '5',
-      status: 'rejected' as const,
-      submittedAt: '2024-04-03',
-      reward: '₩900,000',
-    },
-  ]
+  useEffect(() => {
+    const userId = localStorage.getItem('userId')
+    setAppliedQuests(getStoredAppliedQuests(userId))
+    setSubmissions(getStoredSubmissions(userId))
+  }, [])
 
-  // Mock blog posts data
-  const blogPosts = [
-    {
-      id: '1',
-      title: 'Next.js 14 새로운 기능 살펴보기',
-      excerpt:
-        'Next.js 14에서 도입된 새로운 기능들과 성능 개선사항을 자세히 알아봅시다. App Router의 발전된 기능들을 소개합니다.',
-      date: '2024-04-10',
-      readTime: '8분',
-    },
-    {
-      id: '2',
-      title: 'React 성능 최적화 팁 5가지',
-      excerpt:
-        '웹 애플리케이션의 성능을 향상시키기 위한 실용적인 React 최적화 기법들을 배워봅시다.',
-      date: '2024-04-05',
-      readTime: '10분',
-    },
-    {
-      id: '3',
-      title: 'TypeScript 고급 타입 가이드',
-      excerpt:
-        'Generic, Union, Intersection 등 TypeScript의 고급 타입 기능을 마스터해봅시다.',
-      date: '2024-03-28',
-      readTime: '12분',
-    },
-  ]
+  const activeAppliedQuests = appliedQuests.filter(
+    (quest) => quest.status !== '완료',
+  )
+
+  const overviewStats = useMemo(
+    () =>
+      OVERVIEW_STATS.map((stat) =>
+        stat.label === '진행 중인 퀘스트'
+          ? {
+              ...stat,
+              value: `${activeAppliedQuests.length}개`,
+              subtext:
+                activeAppliedQuests.length > 0
+                  ? '참여 신청한 퀘스트'
+              : '아직 참여중인 퀘스트가 없습니다.',
+            }
+          : stat.label === '완료한 퀘스트'
+            ? {
+                ...stat,
+                value: `${submissions.length}개`,
+                subtext:
+                  submissions.length > 0
+                    ? '제출 완료한 퀘스트'
+                    : '아직 제출한 퀘스트가 없습니다.',
+              }
+            : stat.label === '제출한 결과물'
+              ? {
+                  ...stat,
+                  value: `${submissions.length}건`,
+                  subtext:
+                    submissions.length > 0
+                      ? '제출 완료'
+                      : '아직 제출한 퀘스트가 없습니다.',
+                }
+          : stat,
+      ),
+    [activeAppliedQuests.length, submissions.length],
+  )
+  const recentAppliedQuests = activeAppliedQuests.slice(0, 3)
+  const recentSubmissions = submissions.slice(0, 3)
 
   return (
     <div className="min-h-screen bg-background">
       <GlobalNav />
 
-      <div className="flex">
-        {/* Sidebar */}
-        <DashboardSidebar />
-
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="space-y-6 p-6 lg:p-8">
-            {/* Header */}
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                나의 대시보드
-              </h1>
-              <p className="mt-1 text-foreground-muted">
-                퀘스트 진행 상황과 수익을 한눈에 확인하세요.
-              </p>
-            </div>
-
-            {/* Sections Grid */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Left Column */}
-              <div className="space-y-6">
-                <ActiveQuestsSection quests={activeQuests} />
-                <SubmissionsSection submissions={submissions} />
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                <EarningsSection />
-                <PortfolioBlogSection posts={blogPosts} />
-              </div>
-            </div>
+      <DashboardShell>
+        <div className="space-y-8">
+          <div>
+            <p className="text-sm font-semibold text-primary">대시보드</p>
+            <h1 className="mt-1 text-3xl font-bold text-foreground">
+              내 작업 현황을 한눈에 확인해보세요
+            </h1>
+            <p className="mt-2 text-foreground-muted">
+              퀘스트 진행 상황, 제출 결과, 수익과 블로그 활동까지 한곳에서 살펴볼 수 있습니다.
+            </p>
           </div>
-        </main>
-      </div>
+
+          <section
+            className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+            aria-label="대시보드 요약"
+          >
+            {overviewStats.map((stat) => (
+              <StatCard
+                key={stat.label}
+                label={stat.label}
+                value={stat.value}
+                subtext={stat.subtext}
+                accent={stat.accent}
+              />
+            ))}
+          </section>
+
+          <section className="grid gap-6 xl:grid-cols-3">
+            <Card className="border border-border">
+              <div className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    최근 제출 결과
+                  </h2>
+                  <Link
+                    href="/dashboard/my-submissions"
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    전체 보기
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  {recentSubmissions.length > 0 ? (
+                    recentSubmissions.map((item) => {
+                      const status = formatSubmissionStatus(item.status)
+
+                      return (
+                        <Link key={item.id} href="/dashboard/my-submissions">
+                          <div className="rounded-lg border border-border p-4 transition-colors hover:bg-surface">
+                            <div className="flex items-start justify-between gap-3">
+                              <h3 className="line-clamp-2 text-sm font-semibold text-foreground">
+                                {item.questTitle}
+                              </h3>
+                              <Badge className="shrink-0 bg-primary-light text-primary">
+                                {status}
+                              </Badge>
+                            </div>
+                            <p className="mt-2 text-xs text-foreground-muted">
+                              제출일 {new Date(item.submittedAt).toLocaleDateString('ko-KR')}
+                            </p>
+                          </div>
+                        </Link>
+                      )
+                    })
+                  ) : (
+                    <div className="rounded-lg border border-dashed border-border p-4">
+                      <p className="text-sm text-foreground-muted">
+                        아직 제출한 퀘스트가 없습니다.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+
+            <Card className="border border-border">
+              <div className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    최근 참여 퀘스트
+                  </h2>
+                  <Link
+                    href="/dashboard/my-quests"
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    전체 보기
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  {recentAppliedQuests.length > 0 ? (
+                    recentAppliedQuests.map((quest) => (
+                      <Link key={quest.questId} href={`/quests/${quest.questId}`}>
+                        <div className="rounded-lg border border-border p-4 transition-colors hover:bg-surface">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="line-clamp-2 text-sm font-semibold text-foreground">
+                              {quest.title}
+                            </h3>
+                            <Badge className="shrink-0 bg-primary-light text-primary">
+                              {quest.status}
+                            </Badge>
+                          </div>
+                          <p className="mt-2 text-xs text-foreground-muted">
+                            {quest.reward} · {quest.deadline}
+                          </p>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="rounded-lg border border-dashed border-border p-4">
+                      <p className="text-sm text-foreground-muted">
+                        아직 참여중인 퀘스트가 없습니다.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+
+            <Card className="border border-border">
+              <div className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    최근 수익
+                  </h2>
+                  <Link
+                    href="/dashboard/earnings"
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    전체 보기
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  {RECENT_EARNINGS.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border border-border p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="line-clamp-2 text-sm font-semibold text-foreground">
+                          {item.title}
+                        </h3>
+                        <span className="shrink-0 text-sm font-bold text-primary">
+                          {item.amount}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs text-foreground-muted">
+                        지급일 {item.date}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          </section>
+        </div>
+      </DashboardShell>
     </div>
   )
 }

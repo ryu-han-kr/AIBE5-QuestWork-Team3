@@ -1,78 +1,71 @@
-import { GlobalNav } from '@/components/global-nav'
-import { HeroSection } from '@/components/landing/hero-section'
-import { HowItWorksSection } from '@/components/landing/how-it-works-section'
-import { BenefitsSection } from '@/components/landing/benefits-section'
-import { Footer } from '@/components/landing/footer'
-import { QuestCard, type Quest } from '@/components/quest-card'
+﻿import { GlobalNav } from "@/components/global-nav";
+import { HeroSection } from "@/components/landing/hero-section";
+import { HowItWorksSection } from "@/components/landing/how-it-works-section";
+import { BenefitsSection } from "@/components/landing/benefits-section";
+import { Footer } from "@/components/landing/footer";
+import { PlatformStatsSection } from "@/components/landing/platform-stats-section";
+import { PromoBanner } from "@/components/landing/promo-banner";
+import { TrustedCompaniesSection } from "@/components/landing/trusted-companies-section";
+import { QuestCard, type Quest } from "@/components/quest-card";
 
-const FEATURED_QUESTS: Quest[] = [
-  {
-    id: '1',
-    title: 'React Admin Dashboard Performance Optimization',
-    description:
-      'Improve rendering performance and reduce bundle size in a React admin dashboard.',
-    techStack: ['React', 'Next.js', 'TypeScript'],
-    reward: '₩1,000,000',
-    deadline: '5일 남음',
-    participants: 15,
-  },
-  {
-    id: '2',
-    title: 'Mobile App for Task Management',
-    description:
-      'Develop a cross-platform task management application with offline capabilities and cloud synchronization.',
-    techStack: ['React Native', 'Firebase'],
-    reward: '₩800,000',
-    deadline: '7일 남음',
-    participants: 12,
-  },
-  {
-    id: '3',
-    title: 'REST API for Microservices Architecture',
-    description:
-      'Design and implement a robust REST API with authentication, rate limiting, and comprehensive documentation.',
-    techStack: ['Node.js', 'Express', 'MongoDB'],
-    reward: '₩1,500,000',
-    deadline: '3일 남음',
-    participants: 22,
-  },
-  {
-    id: '11',
-    title: 'Next.js E-commerce Platform',
-    description:
-      'Build a full-stack e-commerce platform with payment integration, product management, and order tracking.',
-    techStack: ['Next.js', 'React', 'Stripe'],
-    reward: '₩2,500,000',
-    deadline: '14일 남음',
-    participants: 28,
-  },
-  {
-    id: '4',
-    title: 'Kubernetes Deployment & CI/CD Pipeline',
-    description:
-      'Set up a complete Kubernetes cluster with automated CI/CD pipelines for a multi-container application.',
-    techStack: ['Kubernetes', 'Docker', 'Jenkins'],
-    reward: '₩2,000,000',
-    deadline: '10일 남음',
-    participants: 8,
-  },
-  {
-    id: '12',
-    title: 'Node.js Chat Application',
-    description:
-      'Develop a real-time chat application with WebSocket support, user authentication, and message persistence.',
-    techStack: ['Node.js', 'Socket.io', 'MongoDB'],
-    reward: '₩1,100,000',
-    deadline: '8일 남음',
-    participants: 14,
-  },
-]
+interface ApiQuest {
+  id: number;
+  title: string;
+  formData: {
+    description: string;
+    techStack: string[];
+    difficulty: string;
+    submissionFormats: string[];
+  };
+  rewardAmount: number;
+  deadline: string;
+  status: string;
+}
 
-export default function LandingPage() {
+function formatReward(amount: number): string {
+  return "원" + amount.toLocaleString("ko-KR");
+}
+
+function formatDeadline(deadline: string): string {
+  const deadlineDate = new Date(deadline.replace(" ", "T"));
+  const now = new Date();
+  const diffMs = deadlineDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return "마감";
+  return `${diffDays}일 남음`;
+}
+
+async function fetchFeaturedQuests(): Promise<Quest[]> {
+  try {
+    const res = await fetch("http://localhost:8000/api/quests", {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return [];
+    const data: ApiQuest[] = await res.json();
+    return data.slice(0, 6).map((q) => ({
+      id: String(q.id),
+      title: q.title,
+      description: q.formData?.description ?? "",
+      techStack: q.formData?.techStack ?? [],
+      reward: formatReward(q.rewardAmount),
+      deadline: formatDeadline(q.deadline),
+      participants: 0,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function LandingPage() {
+  const featuredQuests = await fetchFeaturedQuests();
+
   return (
     <div className="min-h-screen bg-background">
       <GlobalNav />
+      <PromoBanner />
       <HeroSection />
+      <TrustedCompaniesSection />
+      <PlatformStatsSection />
 
       {/* Featured Quests Section */}
       <section className="border-t border-border bg-surface px-4 py-20 sm:px-6 lg:px-8">
@@ -88,11 +81,17 @@ export default function LandingPage() {
           </div>
 
           {/* Quest Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURED_QUESTS.map((quest) => (
-              <QuestCard key={quest.id} quest={quest} />
-            ))}
-          </div>
+          {featuredQuests.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {featuredQuests.map((quest) => (
+                <QuestCard key={quest.id} quest={quest} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-foreground-muted">
+              퀘스트를 불러오는 중입니다...
+            </p>
+          )}
         </div>
       </section>
 
@@ -100,5 +99,5 @@ export default function LandingPage() {
       <BenefitsSection />
       <Footer />
     </div>
-  )
+  );
 }
