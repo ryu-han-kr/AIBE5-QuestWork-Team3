@@ -44,10 +44,17 @@ public class QuestService {
 
         //String formDataJson = toJsonString(requestDto.getFormData());
 
+        String formDataJson;
+        try {
+            formDataJson = objectMapper.writeValueAsString(requestDto.getFormData());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "formData JSON 직렬화 실패");
+        }
+
         Quest quest = Quest.builder()
                 .managerId(manager)
                 .title(requestDto.getTitle())
-                .formData(requestDto.getFormData().toString())
+                .formData(formDataJson)
                 .rewardAmount(requestDto.getRewardAmount())
                 .deadline(requestDto.getDeadline())
                 .status(QuestStatus.OPEN)
@@ -92,9 +99,17 @@ public class QuestService {
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new EntityNotFoundException("퀘스트를 찾을 수 없습니다." + questId));
         validateQuestOwner(quest, managerId);
+        String formDataJson = null;
+        if (requestDto.getFormData() != null) {
+            try {
+                formDataJson = objectMapper.writeValueAsString(requestDto.getFormData());
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "formData JSON 직렬화 실패");
+            }
+        }
         quest.update(
                 requestDto.getTitle(),
-                requestDto.getFormData().toString(),
+                formDataJson,
                 requestDto.getRewardAmount(),
                 requestDto.getDeadline(),
                 requestDto.getStatus()

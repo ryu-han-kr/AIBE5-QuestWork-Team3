@@ -34,11 +34,15 @@ public class QuestResponseDto {
 
     public static QuestResponseDto from(Quest quest, ObjectMapper objectMapper) {
         try {
+            String rawFormData = quest.getFormData();
+            JsonNode formDataNode = (rawFormData != null && !rawFormData.isBlank())
+                    ? objectMapper.readTree(rawFormData)
+                    : null;
             return QuestResponseDto.builder()
                     .id(quest.getId())
                     .managerId(quest.getManagerId().getId())
                     .title(quest.getTitle())
-                    .formData(objectMapper.readTree(quest.getFormData()))
+                    .formData(formDataNode)
                     .rewardAmount(quest.getRewardAmount())
                     .deadline(quest.getDeadline())
                     .status(quest.getStatus())
@@ -46,7 +50,7 @@ public class QuestResponseDto {
                     .updatedAt(quest.getUpdatedAt())
                     .build();
         } catch(Exception e) {
-            throw new RuntimeException("Quest formData 파싱 실패");
+            throw new RuntimeException("Quest formData 파싱 실패: " + e.getMessage(), e);
         }
     }
 

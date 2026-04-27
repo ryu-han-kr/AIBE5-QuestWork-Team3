@@ -4,6 +4,10 @@ import com.example.QuestWork.domain.escrows.entity.Escrow;
 import com.example.QuestWork.domain.escrows.repository.EscrowRepository;
 import com.example.QuestWork.domain.manager.entity.ManagerProfileEntity;
 import com.example.QuestWork.domain.manager.repositroy.ManagerProfileRepository;
+import com.example.QuestWork.domain.member.entity.MemberProfileEntity;
+import com.example.QuestWork.domain.member.repository.MemberProfileRepository;
+import com.example.QuestWork.domain.payment.entity.Payment;
+import com.example.QuestWork.domain.payment.repository.PaymentRepository;
 import com.example.QuestWork.domain.quest.dto.*;
 import com.example.QuestWork.domain.quest.entity.Quest;
 import com.example.QuestWork.domain.quest.entity.QuestSubmission;
@@ -15,10 +19,17 @@ import com.example.QuestWork.domain.quest.repository.QuestSubmissionRepository;
 import com.example.QuestWork.domain.quest.repository.QuestWinnerRepository;
 import com.example.QuestWork.domain.user.entity.User;
 import com.example.QuestWork.domain.user.repository.UserRepository;
+import com.example.QuestWork.domain.wallet.entity.WalletEntity;
+import com.example.QuestWork.domain.wallet.entity.WalletTransaction;
+import com.example.QuestWork.domain.wallet.repository.WalletRepository;
+import com.example.QuestWork.domain.wallet.repository.WalletTransactionRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,6 +45,10 @@ public class ManagerQuestService {
     private final ManagerProfileRepository managerProfileRepository;
     private final UserRepository userRepository;
     private final EscrowRepository escrowRepository;
+    private final MemberProfileRepository memberProfileRepository;
+    private final PaymentRepository paymentRepository;
+    private final WalletRepository walletRepository;
+    private final WalletTransactionRepository transactionRepository;
 
 
     //본인이 등록한 모든 퀘스트 목록 조회
@@ -82,6 +97,7 @@ public class ManagerQuestService {
         // 제출물 상태를 WINNER로 변경
         submission.markAsWinner();
         questSubmissionRepository.save(submission);
+        processSettlement(submission.getMember().getId(), quest.getId(), quest.getRewardAmount());
 
         // 퀘스트 상태를 PICKED(우승자 선정 완료)로 변경
         quest.updateStatus(QuestStatus.PICKED);
@@ -104,6 +120,48 @@ public class ManagerQuestService {
     }
 
 
+    @Transactional // <- 이 부분을 반드시 추가하세요! (정합성 보장)
+    public void processSettlement(Long memberId, Long questId, BigDecimal totalAmount) {
+        // 1. 멤버 프로필 조회 및 실제 유저 ID 추출
+        MemberProfileEntity profile = memberProfileRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("멤버 프로필 없음 (ID: " + memberId + ")"));
+
+        Long actualUserId = profile.getUser().getId();
+
+        // 2. 수수료(10%) 및 실지급액 계산
+        BigDecimal fee = totalAmount.multiply(new BigDecimal("0.1"));
+        BigDecimal netAmount = totalAmount.subtract(fee);
+
+        // 3. Payments 저장 (정산 상태를 'PAID'로 명시)
+        paymentRepository.save(Payment.builder()
+                .memberId(memberId)
+                .questId(questId)
+                .amount(totalAmount)
+                .fee(fee)
+                .netAmount(netAmount)
+                .status("PAID") // 슬라이드와 동일하게 'PAID' 적용
+                .paidAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .build());
+
+        // 4. 유저 지갑 업데이트 (실제 유저의 PK인 actualUserId 사용)
+        WalletEntity wallet = walletRepository.findByUserId(actualUserId)
+                .orElseThrow(() -> new EntityNotFoundException("유저 ID " + actualUserId + "의 지갑을 찾을 수 없습니다."));
+
+        wallet.addBalance(netAmount);
+
+        // 5. 입금 내역 저장
+        transactionRepository.save(WalletTransaction.builder()
+                .wallet(wallet)
+                .userId(actualUserId)
+                .amount(netAmount)
+                .type("SETTLEMENT")
+                .status("COMPLETED")
+                .referenceId(questId)
+                .description(String.format("퀘스트 #%d 정산 입금 완료", questId))
+                .build());
+    }
+
     //맴버가 소유하고 잇는 퀘스트인지 검증
     private Quest getQuestAndValidateOwner(Long questId, Long userId) {
         ManagerProfileEntity manager = getManagerProfile(userId);
@@ -117,7 +175,7 @@ public class ManagerQuestService {
         return quest;
     }
     //매니저 아이디 가져오기 - 없으면 자동 생성
-    @Transactional
+
     private ManagerProfileEntity getManagerProfile(Long userId) {
         return managerProfileRepository.findByUserId(userId)
                 .orElseGet(() -> {
